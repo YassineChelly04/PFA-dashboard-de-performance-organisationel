@@ -19,6 +19,18 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        if (
+          credentials.employeeId === demoEmployeeId &&
+          credentials.password === demoPassword
+        ) {
+          return {
+            id: 'demo-technicien',
+            employeeId: demoEmployeeId,
+            name: 'Mohamed Ben Ali',
+            email: 'mohamed.benali@tunisietelecom.tn',
+          }
+        }
+
         let technicien = await prisma.technicien.findUnique({
           where: { employeeId: credentials.employeeId },
         })
