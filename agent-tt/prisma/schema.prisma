@@ -1,0 +1,80 @@
+// Schéma Prisma pour l'application Agent Tunisie Telecom
+// Service Dérangement - Gestion des interventions
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Table des techniciens (agents TT)
+model Technicien {
+  id            String   @id @default(cuid())
+  employeeId    String   @unique // Numéro d'employé (ex: 88234)
+  password      String   // Hash du mot de passe
+  nom           String
+  prenom        String
+  email         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  interventions Intervention[]
+}
+
+// Table des clients/lignes en dérangement
+model Client {
+  id                String   @id @default(cuid())
+  dLigne            String   @unique // DL-007716
+  referenceExtranet String?  // 24.12.07.382
+  refHPSM           String?  // IM12436725
+  nom               String   // Nom du client
+  region            String
+  offre             String   // Offre de Gros ADSL Hybride, VDSL Postpaye
+  debitADSL         String   // 12 mbps, 20 mbps
+  fsiadsl           String   // Hexabyte, etc.
+  typeClient        String   @default("Résidentiel") // Résidentiel, Professionnel
+  
+  // Données de la panne
+  downtimeStart     DateTime?
+  openTimeHPSM      DateTime?
+  problemStatus     String    @default("Ouvert") // Ouvert, En cours, Clôturé
+  briefDescription  String?   // Description du problème
+  actionFSI         String?   // Action faite par FSI
+  
+  // Données techniques
+  attenuationLigne  Float?    // Atténuation en dB
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  interventions     Intervention[]
+}
+
+// Table des interventions
+model Intervention {
+  id                    String   @id @default(cuid())
+  
+  // Relations
+  clientId              String
+  client                Client   @relation(fields: [clientId], references: [id])
+  technicienId          String
+  technicien            Technicien @relation(fields: [technicienId], references: [id])
+  
+  // Données remplies par le technicien
+  productType           String?  // Peigne de coffret, Rosas, Remplacement Jarretière
+  resolutionCode        String?  // PC, Installation Interne, IPMSAN
+  resolutionObservation String?  // Observations libres du technicien
+  
+  // Timestamps
+  closeTime             DateTime?
+  resolutionDuration    String?  // Format: "1 00:44:34"
+  
+  status                String   @default("En cours") // En cours, Terminé
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
