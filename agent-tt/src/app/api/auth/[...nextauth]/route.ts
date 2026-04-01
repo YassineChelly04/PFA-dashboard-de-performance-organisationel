@@ -3,6 +3,9 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 
+const demoEmployeeId = process.env.DEMO_EMPLOYEE_ID ?? '88234'
+const demoPassword = process.env.DEMO_PASSWORD ?? 'demo123'
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -16,9 +19,28 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const technicien = await prisma.technicien.findUnique({
+        let technicien = await prisma.technicien.findUnique({
           where: { employeeId: credentials.employeeId },
         })
+
+        if (
+          !technicien &&
+          credentials.employeeId === demoEmployeeId &&
+          credentials.password === demoPassword
+        ) {
+          const hashedPassword = await bcrypt.hash(demoPassword, 10)
+          technicien = await prisma.technicien.upsert({
+            where: { employeeId: demoEmployeeId },
+            update: {},
+            create: {
+              employeeId: demoEmployeeId,
+              password: hashedPassword,
+              nom: 'Ben Ali',
+              prenom: 'Mohamed',
+              email: 'mohamed.benali@tunisietelecom.tn',
+            },
+          })
+        }
 
         if (!technicien) {
           return null
