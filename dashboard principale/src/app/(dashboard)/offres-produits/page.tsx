@@ -1,3 +1,4 @@
+import { DashboardDataUnavailableState } from "@/components/DashboardDataUnavailableState";
 import { PageHeader } from "@/components/PageHeader";
 import { DonutChart } from "@/components/charts/DonutChart";
 import { HorizontalBarChart } from "@/components/charts/HorizontalBarChart";
@@ -5,7 +6,7 @@ import { OfferSelect, PeriodSelect, RegionSelect } from "@/components/QueryContr
 import { Card } from "@/components/ui/Card";
 import { offerClusterCounts } from "@/lib/buckets";
 import { distinctOffers, distinctRegions } from "@/lib/catalog";
-import { loadIncidents } from "@/lib/excel/loadWorkbook";
+import { loadDashboardIncidentsSafely } from "@/lib/dashboardData";
 import { applyFilters, parseDashboardFilters } from "@/lib/filters";
 import { formatIntFr, formatPct1 } from "@/lib/format";
 import { topNCounts } from "@/lib/metrics";
@@ -18,7 +19,12 @@ export default async function OffresProduitsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
-  const all = await loadIncidents();
+  const incidents = await loadDashboardIncidentsSafely();
+  if (!incidents.ok) {
+    return <DashboardDataUnavailableState />;
+  }
+
+  const all = incidents.data;
   const filters = parseDashboardFilters(sp);
   const filtered = applyFilters(all, filters);
 

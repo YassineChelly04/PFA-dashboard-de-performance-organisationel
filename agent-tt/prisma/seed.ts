@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { getWorkbookClientInputs } from '../src/lib/workbook'
 
 const prisma = new PrismaClient()
+const CHUNK_SIZE = 1000
 
 async function main() {
   console.log('🌱 Seeding database...')
@@ -25,20 +26,30 @@ async function main() {
   console.log('✅ Technicien créé:', technicien.prenom, technicien.nom)
 
   const clients = getWorkbookClientInputs()
-
-  for (const [index, clientData] of clients.entries()) {
-    await prisma.client.upsert({
-      where: { dLigne: clientData.dLigne },
-      update: clientData,
-      create: clientData,
-    })
-
-    if ((index + 1) % 500 === 0 || index === clients.length - 1) {
-      console.log(`✅ ${index + 1}/${clients.length} clients synchronisés`)
-    }
+  const uniqueByDLigne = new Map<string, (typeof clients)[number]>()
+  for (const clientData of clients) {
+    uniqueByDLigne.set(clientData.dLigne, clientData)
   }
 
-  console.log(`🎉 Seeding terminé! ${clients.length} clients synchronisés depuis all-data.xlsx`)
+  const uniqueClients = Array.from(uniqueByDLigne.values())
+  let created = 0
+
+  for (let index = 0; index < uniqueClients.length; index += CHUNK_SIZE) {
+    const chunk = uniqueClients.slice(index, index + CHUNK_SIZE)
+    const result = await prisma.client.createMany({
+      data: chunk,
+      skipDuplicates: true,
+    })
+    created += result.count
+    console.log(
+      `✅ ${Math.min(index + CHUNK_SIZE, uniqueClients.length)}/${uniqueClients.length} clients synchronisés`
+    )
+  }
+
+  const alreadyPresent = uniqueClients.length - created
+  console.log(
+    `🎉 Seeding terminé! ${uniqueClients.length} clients uniques depuis all-data.xlsx (${created} créés, ${alreadyPresent} déjà présents)`
+  )
 }
 
 main()

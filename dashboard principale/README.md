@@ -6,9 +6,26 @@ Application **Next.js** (App Router) dans :
 
 ## Données
 
-Le dashboard lit le fichier global :
+Le dashboard lit les donnees selon cet ordre :
 
-- `PFA/database/all-data.xlsx` (feuille `hexabyte-02022026`)
+1. Prisma/PostgreSQL (source principale en production via `DATABASE_URL`).
+2. `PFA/database/all-data.xlsx` (local, feuille `hexabyte-02022026`).
+3. `PFA/dashboard principale/data/data.xlsx` (fallback deployable).
+
+### Import du gros fichier Excel vers Prisma
+
+```powershell
+cd "c:\Users\yassi\OneDrive\Desktop\PFA\dashboard principale"
+npm run db:push
+npm run db:import:xlsx
+```
+
+Le script `db:import:xlsx` lit `PFA/database/all-data.xlsx` et remplit la table `Incident` de la base Prisma.
+
+### Variables Vercel requises
+
+- `DATABASE_URL`
+- `PRISMA_DATABASE_URL`
 
 ## Lancer localement
 

@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import {
-  findWorkbookRowByLookup,
-  mapWorkbookRowToClientInput,
-} from '@/lib/workbook'
+import { canUseWorkbookRuntimeFallback } from '@/lib/runtime'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -30,7 +27,10 @@ export async function GET(request: Request) {
       },
     })
 
-    if (!client) {
+    if (!client && canUseWorkbookRuntimeFallback()) {
+      const { findWorkbookRowByLookup, mapWorkbookRowToClientInput } = await import(
+        '@/lib/workbook'
+      )
       const workbookRow = findWorkbookRowByLookup(query)
       if (workbookRow) {
         const workbookClient = mapWorkbookRowToClientInput(workbookRow)

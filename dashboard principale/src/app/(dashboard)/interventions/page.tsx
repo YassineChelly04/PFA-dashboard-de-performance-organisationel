@@ -1,5 +1,6 @@
 import { Download } from "lucide-react";
 
+import { DashboardDataUnavailableState } from "@/components/DashboardDataUnavailableState";
 import { DonutChart } from "@/components/charts/DonutChart";
 import { HorizontalBarChart } from "@/components/charts/HorizontalBarChart";
 import { OfferSelect, PeriodSelect, RegionSelect } from "@/components/QueryControls";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { distinctOffers, distinctRegions } from "@/lib/catalog";
 import { compareToPreviousPeriod } from "@/lib/compare";
-import { loadIncidents } from "@/lib/excel/loadWorkbook";
+import { loadDashboardIncidentsSafely } from "@/lib/dashboardData";
 import { applyFilters, parseDashboardFilters } from "@/lib/filters";
 import { formatHours1, formatIntFr, formatPct1, formatSignedPct1 } from "@/lib/format";
 import { isClosed } from "@/lib/normalize";
@@ -21,7 +22,12 @@ export default async function InterventionsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
-  const all = await loadIncidents();
+  const incidents = await loadDashboardIncidentsSafely();
+  if (!incidents.ok) {
+    return <DashboardDataUnavailableState />;
+  }
+
+  const all = incidents.data;
   const filters = parseDashboardFilters(sp);
   const filtered = applyFilters(all, filters);
 

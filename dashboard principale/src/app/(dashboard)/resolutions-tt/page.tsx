@@ -1,9 +1,10 @@
+import { DashboardDataUnavailableState } from "@/components/DashboardDataUnavailableState";
 import { PageHeader } from "@/components/PageHeader";
 import { ParetoComboChart } from "@/components/charts/ParetoComboChart";
 import { OfferSelect, PeriodSelect, RegionSelect } from "@/components/QueryControls";
 import { Card } from "@/components/ui/Card";
 import { distinctOffers, distinctRegions } from "@/lib/catalog";
-import { loadIncidents } from "@/lib/excel/loadWorkbook";
+import { loadDashboardIncidentsSafely } from "@/lib/dashboardData";
 import { applyFilters, parseDashboardFilters } from "@/lib/filters";
 import { formatIntFr, formatPct1 } from "@/lib/format";
 import { paretoFromCounts, topNCounts } from "@/lib/metrics";
@@ -16,7 +17,12 @@ export default async function ResolutionsTTPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
-  const all = await loadIncidents();
+  const incidents = await loadDashboardIncidentsSafely();
+  if (!incidents.ok) {
+    return <DashboardDataUnavailableState />;
+  }
+
+  const all = incidents.data;
   const filters = parseDashboardFilters(sp);
   const filtered = applyFilters(all, filters);
 

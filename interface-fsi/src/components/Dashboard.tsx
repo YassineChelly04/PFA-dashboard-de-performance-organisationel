@@ -1,16 +1,19 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import {
   Search,
   LogOut,
+  Home,
   Settings,
   Bell,
   HelpCircle,
+  Moon,
   MapPin,
   ArrowRight,
   User,
@@ -35,6 +38,7 @@ interface LigneData {
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -72,7 +76,11 @@ export default function Dashboard() {
       const response = await fetch(`/api/ligne?dl=${encodeURIComponent(searchQuery.trim())}`);
       const result = await response.json();
 
-      if (!response.ok || !result.found) {
+      if (!response.ok) {
+        throw new Error(result.error || "Erreur lors de la recherche");
+      }
+
+      if (!result.found) {
         toast.error(`Ligne ${searchQuery} non trouvée`);
         setLineFound(false);
         setLineData({
@@ -111,8 +119,9 @@ export default function Dashboard() {
         toast.success(`Ligne ${data.dLigne} trouvée`);
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la recherche";
       console.error("Search error:", error);
-      toast.error("Erreur lors de la recherche");
+      toast.error(message);
       setLineFound(false);
     } finally {
       setIsSearching(false);
@@ -172,26 +181,52 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#f8fafc] flex overflow-hidden">
       {/* Left Sidebar */}
-      <aside className="w-[184px] bg-white border-r border-[#e5e7eb] flex flex-col min-h-screen shrink-0">
+      <aside className="w-[280px] bg-white border-r border-[#e5e7eb] flex flex-col min-h-screen shrink-0 px-4 py-6">
         {/* Sidebar Header */}
-        <div className="p-5 border-b border-[#e5e7eb]">
-          <h2 className="text-[#1e3a6e] font-bold text-[15px]">Supplier Portal</h2>
-          <p className="text-[#6b7280] text-[12px] mt-0.5">Field Operations</p>
+        <div className="flex items-center gap-3 px-2">
+          <Image src="/logo-tt.png" alt="Tunisie Telecom" width={96} height={48} className="h-12 w-auto" />
+          <div className="leading-tight">
+            <h2 className="text-[#0a277a] font-extrabold text-[15px]">Tunisie Telecom</h2>
+            <p className="text-[#6b7280] text-[12px] mt-0.5">Performance</p>
+          </div>
         </div>
 
         {/* Sidebar Navigation */}
-        <nav className="flex-1 p-4">
+        <nav className="flex-1 mt-6 px-2">
+          <div className="text-[11px] font-bold tracking-wider text-[#9ca3af] mb-2">NAVIGATION</div>
           <ul className="space-y-1">
             <li>
-              <button className="w-full flex items-center gap-3 px-3 py-2.5 text-[#374151] hover:bg-[#f3f4f6] rounded-lg transition-colors text-[13px]">
-                <Settings size={18} className="text-[#6b7280]" />
+              <Link
+                href="/dashboard"
+                className={[
+                  "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
+                  pathname === "/dashboard"
+                    ? "bg-gradient-to-r from-[#1E2F97] to-[#5F2EE5] text-white shadow-[0_10px_24px_rgba(95,46,229,0.24)]"
+                    : "text-[#374151] hover:bg-[#f9fafb]",
+                ].join(" ")}
+              >
+                <Home size={18} className={pathname === "/dashboard" ? "text-white" : "text-[#6b7280]"} />
+                Accueil
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/settings"
+                className={[
+                  "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
+                  pathname === "/settings"
+                    ? "bg-gradient-to-r from-[#1E2F97] to-[#5F2EE5] text-white shadow-[0_10px_24px_rgba(95,46,229,0.24)]"
+                    : "text-[#374151] hover:bg-[#f9fafb]",
+                ].join(" ")}
+              >
+                <Settings size={18} className={pathname === "/settings" ? "text-white" : "text-[#6b7280]"} />
                 Settings
-              </button>
+              </Link>
             </li>
             <li>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-[#374151] hover:bg-[#f3f4f6] rounded-lg transition-colors text-[13px]"
+                className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold text-[#374151] hover:bg-[#f9fafb] transition-colors"
               >
                 <LogOut size={18} className="text-[#6b7280]" />
                 Logout
@@ -204,52 +239,43 @@ export default function Dashboard() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="h-[58px] bg-white border-b border-[#e5e7eb] flex items-center justify-between px-6 shrink-0">
-          {/* Logo */}
-          <div className="flex items-center">
-            <span className="text-[#1e3a6e] font-bold text-[16px]">Extranet by TT</span>
-          </div>
-
+        <header className="bg-white border-b border-[#e5e7eb] flex items-center gap-4 px-8 py-4 shrink-0">
           {/* Search Bar */}
-          <div className="flex-1 max-w-[404px] mx-8">
+          <div className="relative flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]" size={18} />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]" size={16} />
               <input
-                type="text"
+                type="search"
                 placeholder="Search orders or tickets..."
-                className="w-full pl-10 pr-4 py-2 bg-[#f3f4f6] border-0 rounded-full text-[13px] text-[#374151] placeholder-[#9ca3af] focus:ring-2 focus:ring-[#1e3a6e]/20 outline-none"
+                className="w-full rounded-2xl border border-[#e5e7eb] bg-[#f9fafb] py-3 pl-11 pr-4 text-sm text-[#374151] outline-none ring-[#1E2F97]/20 placeholder:text-[#9ca3af] focus:ring-4"
               />
             </div>
           </div>
 
           {/* Right Icons */}
-          <div className="flex items-center gap-4">
-            <button className="p-2 text-[#6b7280] hover:text-[#374151] hover:bg-[#f3f4f6] rounded-full transition-colors">
+          <div className="hidden items-center gap-2 md:flex">
+            <button className="grid h-11 w-11 place-items-center rounded-2xl border border-[#e5e7eb] bg-white text-[#4b5563] hover:bg-[#f9fafb] transition-colors">
               <Bell size={20} />
             </button>
-            <button className="p-2 text-[#6b7280] hover:text-[#374151] hover:bg-[#f3f4f6] rounded-full transition-colors">
+            <button className="grid h-11 w-11 place-items-center rounded-2xl border border-[#e5e7eb] bg-white text-[#4b5563] hover:bg-[#f9fafb] transition-colors">
               <HelpCircle size={20} />
             </button>
-            
+            <button className="grid h-11 w-11 place-items-center rounded-2xl border border-[#e5e7eb] bg-white text-[#4b5563] hover:bg-[#f9fafb] transition-colors">
+              <Moon size={20} />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2">
             {/* User Info */}
-            <div className="flex items-center gap-3 ml-2">
-              <div className="text-right">
-                <p className="text-[13px] font-medium text-[#1f2937]">Tunis Technoparc</p>
-                <p className="text-[11px] text-[#6b7280]">FOURNISSEUR OFFICIEL</p>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-[#e0f2fe] flex items-center justify-center">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[#e5e7eb] to-[#f3f4f6] ring-1 ring-black/5 flex items-center justify-center">
                 <User size={16} className="text-[#0891b2]" />
               </div>
+              <div className="text-right">
+                <p className="text-[14px] font-extrabold text-[#0a277a]">Tunis Technoparc</p>
+                <p className="text-[12px] text-[#6b7280]">FOURNISSEUR OFFICIEL</p>
+              </div>
             </div>
-
-            {/* TT Logo */}
-            <Image
-              src="/logo-tt.png"
-              alt="Tunisie Telecom"
-              width={36}
-              height={36}
-              className="h-9 w-auto ml-2"
-            />
           </div>
         </header>
 
@@ -267,7 +293,7 @@ export default function Dashboard() {
             <div className="absolute inset-0 bg-[#1E2F97]/55"></div>
             <div className="relative z-10">
                 <h1 className="text-white text-[29px] font-bold mb-3 font-[var(--font-plus-jakarta-sans)]">
-                  Consultation de Ligne
+                  Accueil
                 </h1>
                 <p className="text-white/70 text-[14px] leading-6 mb-6 max-w-[570px] font-[var(--font-manrope)]">
                   Entrez le numéro de la ligne fixe ou mobile pour accéder aux détails techniques et aux actions de maintenance.

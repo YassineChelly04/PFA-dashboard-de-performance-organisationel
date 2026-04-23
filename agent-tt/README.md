@@ -44,14 +44,16 @@ This project now uses PostgreSQL for production. Before deploying:
 
 ```bash
 DATABASE_URL="postgresql://..."
+PRISMA_DATABASE_URL="postgresql://..."
 NEXTAUTH_SECRET="your-production-secret"
 NEXTAUTH_URL="https://your-vercel-domain.vercel.app"
 ```
 
-3. Run Prisma migrations against the production database:
+3. Initialize schema + import workbook data:
 
 ```bash
-npx prisma migrate deploy
+npm run db:push
+npm run db:seed
 ```
 
 4. Deploy the app on Vercel. The `build` script now runs `prisma generate` automatically.

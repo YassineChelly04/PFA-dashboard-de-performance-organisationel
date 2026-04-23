@@ -20,6 +20,31 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Vercel deployment requirements
+
+Set these environment variables in Vercel:
+
+- `DATABASE_URL`: production database connection string.
+- `PRISMA_DATABASE_URL`: direct Prisma connection string (for migrations and tooling).
+- `NEXTAUTH_SECRET`: strong secret for NextAuth sessions.
+- `NEXTAUTH_URL`: your production URL (for example `https://interface-fsi.vercel.app`).
+
+## Prisma database setup and full data import
+
+From `interface-fsi/`:
+
+```bash
+npm run db:push
+npm run db:seed
+```
+
+What this does:
+
+- `db:push` creates/updates the Prisma schema in the configured database.
+- `db:seed` imports all rows from `../database/all-data.xlsx` into Prisma (`Client` table) via upsert.
+
+You can override the workbook path with `WORKBOOK_PATH`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

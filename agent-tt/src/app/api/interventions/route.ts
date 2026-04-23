@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { updateWorkbookIntervention } from '@/lib/workbook'
+import { canUseWorkbookRuntimeFallback } from '@/lib/runtime'
 
 export async function POST(request: Request) {
   try {
@@ -25,19 +25,22 @@ export async function POST(request: Request) {
 
     const closeTime = new Date()
 
-    const workbookUpdated = updateWorkbookIntervention(client.dLigne, {
-      problemStatus: 'Clôturé',
-      closeTime,
-      resolutionCode,
-      productType,
-      resolutionObservation,
-    })
+    if (canUseWorkbookRuntimeFallback()) {
+      const { updateWorkbookIntervention } = await import('@/lib/workbook')
+      const workbookUpdated = updateWorkbookIntervention(client.dLigne, {
+        problemStatus: 'Clôturé',
+        closeTime,
+        resolutionCode,
+        productType,
+        resolutionObservation,
+      })
 
-    if (!workbookUpdated) {
-      return NextResponse.json(
-        { error: 'Unable to update all-data.xlsx for this ligne' },
-        { status: 409 }
-      )
+      if (!workbookUpdated) {
+        return NextResponse.json(
+          { error: 'Unable to update the local workbook for this ligne' },
+          { status: 409 }
+        )
+      }
     }
 
     const intervention = await prisma.$transaction(async (tx) => {

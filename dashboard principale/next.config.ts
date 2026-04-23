@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["xlsx"],
+  serverExternalPackages: ["xlsx", "@prisma/client"],
   // Prevent Next from picking an unrelated parent lockfile as the tracing root on Windows monorepos.
   outputFileTracingRoot: __dirname,
 };

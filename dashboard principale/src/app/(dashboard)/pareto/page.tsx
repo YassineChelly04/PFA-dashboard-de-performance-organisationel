@@ -1,3 +1,4 @@
+import { DashboardDataUnavailableState } from "@/components/DashboardDataUnavailableState";
 import { PageHeader } from "@/components/PageHeader";
 import { ParetoComboChart } from "@/components/charts/ParetoComboChart";
 import { ParetoModeToggle } from "@/components/ModeToggle";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { distinctOffers, distinctRegions } from "@/lib/catalog";
 import { compareToPreviousPeriod } from "@/lib/compare";
-import { loadIncidents } from "@/lib/excel/loadWorkbook";
+import { loadDashboardIncidentsSafely } from "@/lib/dashboardData";
 import { applyFilters, parseDashboardFilters } from "@/lib/filters";
 import { formatHours1, formatIntFr, formatPct1, formatSignedPct1 } from "@/lib/format";
 import { groupMeanHours, mean, paretoFromCounts, statusSplit, topNCounts } from "@/lib/metrics";
@@ -27,7 +28,12 @@ export default async function ParetoPage({
   const modeRaw = firstParam(sp.mode);
   const mode: "cum" | "log" = modeRaw === "log" ? "log" : "cum";
 
-  const all = await loadIncidents();
+  const incidents = await loadDashboardIncidentsSafely();
+  if (!incidents.ok) {
+    return <DashboardDataUnavailableState />;
+  }
+
+  const all = incidents.data;
   const filters = parseDashboardFilters(sp);
   const filtered = applyFilters(all, filters);
 

@@ -1,0 +1,45 @@
+
+> agent-tt@0.1.0 dev
+> next dev --port 3001
+
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://10.157.154.181:3001
+- Environments: .env
+✓ Ready in 846ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\yassi\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\yassi\OneDrive\Desktop\PFA\agent-tt\package-lock.json
+
+
+Search error: Error: Cannot access file C:\Users\yassi\OneDrive\Desktop\PFA\database\all-data.xlsx
+    at readWorkbook (src\lib\workbook.ts:53:23)
+    at findWorkbookRowByLookup (src\lib\workbook.ts:122:28)
+    at syncClientByLookup (src\lib\client-sync.ts:23:46)
+    at GET (src\app\api\clients\search\route.ts:14:29)
+  51 | function readWorkbook() {
+  52 |   ensureWorkbookExists()
+> 53 |   return XLSX.readFile(WORKBOOK_PATH, { cellDates: true })
+     |                       ^
+  54 | }
+  55 |
+  56 | function getRows(workbook: XLSX.WorkBook) {
+ GET /api/clients/search?q=DL-008050 500 in 1260ms (next.js: 568ms, application-code: 692ms)
+Search error: Error: Cannot access file C:\Users\yassi\OneDrive\Desktop\PFA\database\all-data.xlsx
+    at readWorkbook (src\lib\workbook.ts:53:23)
+    at findWorkbookRowByLookup (src\lib\workbook.ts:122:28)
+    at syncClientByLookup (src\lib\client-sync.ts:23:46)
+    at GET (src\app\api\clients\search\route.ts:14:29)
+  51 | function readWorkbook() {
+  52 |   ensureWorkbookExists()
+> 53 |   return XLSX.readFile(WORKBOOK_PATH, { cellDates: true })
+     |                       ^
+  54 | }
+  55 |
+  56 | function getRows(workbook: XLSX.WorkBook) {
+ GET /api/clients/search?q=DL-008050 500 in 463ms (next.js: 4ms, application-code: 459ms)
+ GET /api/clients/search?q=DL-008050 200 in 5.0s (next.js: 119ms, application-code: 4.9s)
+ GET /api/clients/search?q=DL-008050 200 in 4.8s (next.js: 231ms, application-code: 4.6s)

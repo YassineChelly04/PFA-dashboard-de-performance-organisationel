@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
-  findWorkbookRowByDLigne,
-  mapWorkbookRowToClientInput,
-  updateWorkbookActionFSI,
-} from "@/lib/workbook-sync";
+  isDatabaseUnavailableError,
+  PRODUCTION_DATABASE_ERROR_MESSAGE,
+} from "@/lib/runtime";
 
 export const dynamic = "force-dynamic";
 
@@ -42,30 +41,13 @@ export async function GET(request: NextRequest) {
 
   try {
     const normalizedDLigne = dlNumber.trim();
-    let client = await prisma.client.findUnique({
+    const client = await prisma.client.findUnique({
       where: { dLigne: normalizedDLigne },
     });
 
     if (!client) {
-      const workbookRow = findWorkbookRowByDLigne(normalizedDLigne);
-      if (workbookRow) {
-        const workbookClient = mapWorkbookRowToClientInput(workbookRow);
-        if (workbookClient) {
-          await prisma.client.upsert({
-            where: { dLigne: workbookClient.dLigne },
-            update: workbookClient,
-            create: workbookClient,
-          });
-          client = await prisma.client.findUnique({
-            where: { dLigne: normalizedDLigne },
-          });
-        }
-      }
-    }
-
-    if (!client) {
       return NextResponse.json(
-        { error: "Ligne not found in all-data.xlsx", found: false },
+        { error: "Ligne not found", found: false },
         { status: 404 },
       );
     }
@@ -97,6 +79,12 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error reading line from database:", error);
+    if (isDatabaseUnavailableError(error)) {
+      return NextResponse.json(
+        { error: PRODUCTION_DATABASE_ERROR_MESSAGE },
+        { status: 503 },
+      );
+    }
     return NextResponse.json({ error: "Failed to read database" }, { status: 500 });
   }
 }
@@ -113,44 +101,13 @@ export async function POST(request: NextRequest) {
     const normalizedDLigne = String(dlNumber).trim();
     const normalizedAction = String(actionFSI).trim();
 
-    let existingClient = await prisma.client.findUnique({
+    const existingClient = await prisma.client.findUnique({
       where: { dLigne: normalizedDLigne },
       select: { id: true },
     });
 
     if (!existingClient) {
-      const workbookRow = findWorkbookRowByDLigne(normalizedDLigne);
-      if (!workbookRow) {
-        return NextResponse.json({ error: "Ligne not found in all-data.xlsx" }, { status: 404 });
-      }
-
-      const workbookClient = mapWorkbookRowToClientInput(workbookRow);
-      if (!workbookClient) {
-        return NextResponse.json({ error: "Unable to map workbook row" }, { status: 422 });
-      }
-
-      await prisma.client.upsert({
-        where: { dLigne: workbookClient.dLigne },
-        update: workbookClient,
-        create: workbookClient,
-      });
-
-      existingClient = await prisma.client.findUnique({
-        where: { dLigne: normalizedDLigne },
-        select: { id: true },
-      });
-    }
-
-    if (!existingClient) {
-      return NextResponse.json({ error: "Ligne not available after sync" }, { status: 500 });
-    }
-
-    const workbookUpdated = updateWorkbookActionFSI(normalizedDLigne, normalizedAction);
-    if (!workbookUpdated) {
-      return NextResponse.json(
-        { error: "Failed to update all-data.xlsx for this ligne" },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: "Ligne not found" }, { status: 404 });
     }
 
     await prisma.client.update({
@@ -161,6 +118,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, message: "Action saved successfully" });
   } catch (error) {
     console.error("Error writing line action to database:", error);
+    if (isDatabaseUnavailableError(error)) {
+      return NextResponse.json(
+        { error: PRODUCTION_DATABASE_ERROR_MESSAGE },
+        { status: 503 },
+      );
+    }
     return NextResponse.json({ error: "Failed to save to database" }, { status: 500 });
   }
 }

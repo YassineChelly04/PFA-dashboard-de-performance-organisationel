@@ -2,6 +2,8 @@ import { Check, Clock, ExternalLink, MessageCircle, MoreHorizontal, Wrench } fro
 
 import { DonutChart } from "@/components/charts/DonutChart";
 import { MonthlyComboChart } from "@/components/charts/MonthlyComboChart";
+import { RegionalDensityMap } from "@/components/charts/RegionalDensityMap";
+import { DashboardDataUnavailableState } from "@/components/DashboardDataUnavailableState";
 import { KpiTopBorderCard } from "@/components/KpiCards";
 import { PageHeader } from "@/components/PageHeader";
 import { OfferSelect, PeriodSelect, RegionSelect } from "@/components/QueryControls";
@@ -10,7 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { distinctOffers, distinctRegions } from "@/lib/catalog";
 import { compareToPreviousPeriod } from "@/lib/compare";
-import { loadIncidents } from "@/lib/excel/loadWorkbook";
+import { loadDashboardIncidentsSafely } from "@/lib/dashboardData";
 import { applyFilters, parseDashboardFilters } from "@/lib/filters";
 import {
   formatDays1FromHours,
@@ -29,7 +31,12 @@ export default async function VueGlobalePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
-  const all = await loadIncidents();
+  const incidents = await loadDashboardIncidentsSafely();
+  if (!incidents.ok) {
+    return <DashboardDataUnavailableState />;
+  }
+
+  const all = incidents.data;
   const filters = parseDashboardFilters(sp);
   const filtered = applyFilters(all, filters);
 
@@ -45,6 +52,12 @@ export default async function VueGlobalePage({
   const split = statusSplit(filtered);
 
   const monthly = monthlyInterventionTrend(filtered).slice(-7);
+
+  const regionDensity = [...filtered.reduce((acc, row) => {
+    if (!row.region) return acc;
+    acc.set(row.region, (acc.get(row.region) ?? 0) + 1);
+    return acc;
+  }, new Map<string, number>()).entries()].map(([region, count]) => ({ region, count }));
 
   const regions = distinctRegions(all);
   const offers = distinctOffers(all);
@@ -207,17 +220,8 @@ export default async function VueGlobalePage({
               Voir carte complète
             </Button>
           </div>
-          <div className="mt-4 h-[260px] overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 ring-1 ring-white/10">
-            <div className="flex h-full items-center justify-center p-8 text-center">
-              <div className="max-w-md rounded-2xl bg-white/10 p-5 text-white ring-1 ring-white/15 backdrop-blur">
-                <div className="text-sm font-semibold text-white/80">Carte (placeholder)</div>
-                <div className="mt-2 text-lg font-black">SOUSSE : PIC D&apos;ACTIVITÉ</div>
-                <div className="mt-2 text-sm text-white/75">
-                  Visualisation raster non incluse dans les exports Figma fournis — hotspot basé sur
-                  les volumes régionaux du fichier.
-                </div>
-              </div>
-            </div>
+          <div className="mt-4">
+            <RegionalDensityMap regionDensity={regionDensity} />
           </div>
         </Card>
 

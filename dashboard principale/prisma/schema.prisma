@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("PRISMA_DATABASE_URL")
+}
+
+model Incident {
+  id                    Int      @id @default(autoincrement())
+  dLigne                String?
+  referenceExtranet     String?
+  downtimeStart         DateTime?
+  openTimeHPSM          DateTime?
+  refHPSM               String?
+  problemStatus         String?
+  closeTime             DateTime?
+  resolutionCode        String?
+  region                String?
+  offre                 String?
+  briefDescription      String?
+  debitADSL             String?
+  fsiadsl               String?
+  productType           String?
+  resolutionObservation String?
+  resolutionDuration    String?
+  actionFSI             String?
+  createdAt             DateTime @default(now())
+
+  @@index([openTimeHPSM])
+  @@index([region])
+  @@index([offre])
+}
