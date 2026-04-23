@@ -37,6 +37,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [lineFound, setLineFound] = useState(false);
   const [lineData, setLineData] = useState<LigneData>({
     dligne: "",
@@ -123,6 +124,31 @@ export default function Dashboard() {
       ...prev,
       actionAlreadyFilled: true,
     }));
+  };
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+
+    try {
+      const response = await fetch("/api/sync", {
+        method: "POST",
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Erreur de synchronisation");
+      }
+
+      const { created, updated, total } = result.summary;
+      toast.success(
+        `Synchronisation terminée: ${created} créées, ${updated} mises à jour, ${total} lignes traitées.`,
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur de synchronisation";
+      toast.error(message);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -246,6 +272,16 @@ export default function Dashboard() {
                 <p className="text-white/70 text-[14px] leading-6 mb-6 max-w-[570px] font-[var(--font-manrope)]">
                   Entrez le numéro de la ligne fixe ou mobile pour accéder aux détails techniques et aux actions de maintenance.
                 </p>
+
+                <div className="mb-4">
+                  <button
+                    onClick={handleSync}
+                    disabled={isSyncing}
+                    className="inline-flex items-center gap-2 rounded-[14px] border border-white/15 bg-white/10 px-4 py-2.5 text-[13px] font-semibold text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60 font-[var(--font-plus-jakarta-sans)]"
+                  >
+                    {isSyncing ? "Synchronisation..." : "Synchroniser Excel -> base"}
+                  </button>
+                </div>
 
                 {/* Search Input */}
                 <div className="flex gap-3 max-w-[560px]">

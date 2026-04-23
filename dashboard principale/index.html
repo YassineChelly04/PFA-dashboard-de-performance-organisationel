@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PFA Dashboard Principale</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <main class="container">
+        <section class="hero">
+          <div class="hero-overlay"></div>
+          <div class="hero-content">
+            <p class="hero-kicker">Dashboard principale</p>
+            <h1>Vue globale des expertises application</h1>
+            <p>
+              Cette vue centralise les compétences du projet pour piloter rapidement le frontend,
+              le backend, la data, la sécurité et l’architecture.
+            </p>
+            <div class="hero-metrics">
+              <div class="metric-card">
+                <span>Skills</span>
+                <strong id="skills-count">--</strong>
+              </div>
+              <div class="metric-card">
+                <span>Niveau dominant</span>
+                <strong id="top-level">--</strong>
+              </div>
+              <div class="metric-card">
+                <span>Dernière maj</span>
+                <strong>2026</strong>
+              </div>
+            </div>
+          </div>
+          <div class="hero-gallery">
+            <figure><img src="./assets/Group 1.png" alt="Preview 1" /></figure>
+            <figure><img src="./assets/Group 4.png" alt="Preview 2" /></figure>
+            <figure><img src="./assets/Group 5.png" alt="Preview 3" /></figure>
+            <figure><img src="./assets/Group 6.png" alt="Preview 4" /></figure>
+          </div>
+        </section>
+
+        <section class="section-header">
+          <h2>Skills depuis le dossier /skills</h2>
+          <p>Les cartes ci-dessous sont extraites automatiquement des fichiers Markdown.</p>
+        </section>
+
+        <section id="skills-grid" class="skills-grid">
+          <article class="skill-card loading">Chargement des skills...</article>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

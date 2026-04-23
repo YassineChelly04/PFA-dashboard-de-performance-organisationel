@@ -9,6 +9,15 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const { id } = await params
 
+  const existingClient = await prisma.client.findUnique({
+    where: { id },
+    select: { dLigne: true },
+  })
+
+  if (!existingClient) {
+    notFound()
+  }
+
   const client = await prisma.client.findUnique({
     where: { id },
   })

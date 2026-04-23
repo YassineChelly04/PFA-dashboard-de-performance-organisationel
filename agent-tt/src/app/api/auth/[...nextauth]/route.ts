@@ -5,6 +5,8 @@ import { prisma } from '@/lib/prisma'
 
 const demoEmployeeId = process.env.DEMO_EMPLOYEE_ID ?? '88234'
 const demoPassword = process.env.DEMO_PASSWORD ?? 'demo123'
+const useSecureCookies = process.env.NODE_ENV === 'production'
+const cookiePrefix = useSecureCookies ? '__Secure-agent-tt' : 'agent-tt'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -103,6 +105,34 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
+  },
+  cookies: {
+    sessionToken: {
+      name: `${cookiePrefix}.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: useSecureCookies,
+      },
+    },
+    callbackUrl: {
+      name: `${cookiePrefix}.callback-url`,
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: useSecureCookies,
+      },
+    },
+    csrfToken: {
+      name: `${cookiePrefix}.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: useSecureCookies,
+      },
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 }

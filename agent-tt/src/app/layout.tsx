@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope, Montserrat } from "next/font/google";
+import { Manrope, Montserrat, Plus_Jakarta_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
@@ -12,6 +12,12 @@ const montserrat = Montserrat({
 
 const manrope = Manrope({
   variable: "--font-manrope",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
@@ -29,7 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${montserrat.variable} ${manrope.variable} h-full antialiased`}
+      className={`${montserrat.variable} ${manrope.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slate-50 font-[family-name:var(--font-manrope)]">
         <Providers>{children}</Providers>

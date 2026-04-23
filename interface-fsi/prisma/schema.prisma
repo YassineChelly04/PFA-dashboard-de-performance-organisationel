@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Technicien {
+  id            String         @id @default(cuid())
+  employeeId    String         @unique
+  password      String
+  nom           String
+  prenom        String
+  email         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  interventions Intervention[]
+}
+
+model Client {
+  id                String         @id @default(cuid())
+  dLigne            String         @unique
+  referenceExtranet String?
+  refHPSM           String?
+  nom               String
+  region            String
+  offre             String
+  debitADSL         String
+  fsiadsl           String
+  typeClient        String         @default("Résidentiel")
+  downtimeStart     DateTime?
+  openTimeHPSM      DateTime?
+  problemStatus     String         @default("Ouvert")
+  closeTime         DateTime?
+  briefDescription  String?
+  actionFSI         String?
+  resolutionCode        String?
+  productType           String?
+  resolutionObservation String?
+  resolutionDuration    String?
+  attenuationLigne  Float?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  interventions     Intervention[]
+}
+
+model Intervention {
+  id                    String      @id @default(cuid())
+  clientId              String
+  client                Client      @relation(fields: [clientId], references: [id])
+  technicienId          String
+  technicien            Technicien  @relation(fields: [technicienId], references: [id])
+  productType           String?
+  resolutionCode        String?
+  resolutionObservation String?
+  closeTime             DateTime?
+  resolutionDuration    String?
+  status                String      @default("En cours")
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+}

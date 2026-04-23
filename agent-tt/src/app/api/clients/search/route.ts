@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import {
+  findWorkbookRowByLookup,
+  mapWorkbookRowToClientInput,
+} from '@/lib/workbook'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -10,8 +14,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Search by dLigne or referenceExtranet
-    const client = await prisma.client.findFirst({
+    let client = await prisma.client.findFirst({
       where: {
         OR: [
           { dLigne: { contains: query } },
@@ -26,6 +29,36 @@ export async function GET(request: Request) {
         },
       },
     })
+
+    if (!client) {
+      const workbookRow = findWorkbookRowByLookup(query)
+      if (workbookRow) {
+        const workbookClient = mapWorkbookRowToClientInput(workbookRow)
+        if (workbookClient) {
+          await prisma.client.upsert({
+            where: { dLigne: workbookClient.dLigne },
+            update: workbookClient,
+            create: workbookClient,
+          })
+
+          client = await prisma.client.findFirst({
+            where: {
+              OR: [
+                { dLigne: { contains: query } },
+                { referenceExtranet: { contains: query } },
+                { refHPSM: { contains: query } },
+              ],
+            },
+            include: {
+              interventions: {
+                orderBy: { createdAt: 'desc' },
+                take: 5,
+              },
+            },
+          })
+        }
+      }
+    }
 
     if (!client) {
       return NextResponse.json({ client: null })

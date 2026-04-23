@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { updateWorkbookIntervention } from '@/lib/workbook'
 
 export async function POST(request: Request) {
   try {
@@ -13,23 +14,57 @@ export async function POST(request: Request) {
       )
     }
 
-    // Create intervention
-    const intervention = await prisma.intervention.create({
-      data: {
-        clientId,
-        technicienId,
-        productType,
-        resolutionCode,
-        resolutionObservation,
-        status: 'Terminé',
-        closeTime: new Date(),
-      },
+    const client = await prisma.client.findUnique({
+      where: { id: clientId },
+      select: { dLigne: true },
     })
 
-    // Update client status
-    await prisma.client.update({
-      where: { id: clientId },
-      data: { problemStatus: 'Clôturé' },
+    if (!client) {
+      return NextResponse.json({ error: 'Client not found' }, { status: 404 })
+    }
+
+    const closeTime = new Date()
+
+    const workbookUpdated = updateWorkbookIntervention(client.dLigne, {
+      problemStatus: 'Clôturé',
+      closeTime,
+      resolutionCode,
+      productType,
+      resolutionObservation,
+    })
+
+    if (!workbookUpdated) {
+      return NextResponse.json(
+        { error: 'Unable to update all-data.xlsx for this ligne' },
+        { status: 409 }
+      )
+    }
+
+    const intervention = await prisma.$transaction(async (tx) => {
+      const createdIntervention = await tx.intervention.create({
+        data: {
+          clientId,
+          technicienId,
+          productType,
+          resolutionCode,
+          resolutionObservation,
+          status: 'Terminé',
+          closeTime,
+        },
+      })
+
+      await tx.client.update({
+        where: { id: clientId },
+        data: {
+          problemStatus: 'Clôturé',
+          closeTime,
+          resolutionCode,
+          productType,
+          resolutionObservation: resolutionObservation || null,
+        },
+      })
+
+      return createdIntervention
     })
 
     return NextResponse.json({ intervention })

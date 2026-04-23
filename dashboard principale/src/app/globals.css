@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --tt-blue: #1e2f97;
+  --tt-navy: #00157c;
+  --tt-accent: #5f2ee5;
+  --tt-orange: #ff6b00;
+  --tt-light-blue: #e8f4fc;
+  --tt-gray: #fafbfc;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--tt-gray);
+  color: #171717;
+  font-family: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-plus-jakarta-sans), var(--font-manrope), ui-sans-serif, system-ui,
+    sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e2f97;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00157c;
+}

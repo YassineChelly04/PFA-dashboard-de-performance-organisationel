@@ -8,6 +8,15 @@ export async function GET(
   const { id } = await params
 
   try {
+    const existingClient = await prisma.client.findUnique({
+      where: { id },
+      select: { dLigne: true },
+    })
+
+    if (!existingClient) {
+      return NextResponse.json({ error: 'Client not found' }, { status: 404 })
+    }
+
     const client = await prisma.client.findUnique({
       where: { id },
       include: {

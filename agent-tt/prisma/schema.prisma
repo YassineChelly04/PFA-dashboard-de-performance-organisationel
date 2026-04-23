@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -42,8 +42,13 @@ model Client {
   downtimeStart     DateTime?
   openTimeHPSM      DateTime?
   problemStatus     String    @default("Ouvert") // Ouvert, En cours, Clôturé
+  closeTime         DateTime?
   briefDescription  String?   // Description du problème
   actionFSI         String?   // Action faite par FSI
+  resolutionCode        String?
+  productType           String?
+  resolutionObservation String?
+  resolutionDuration    String?
   
   // Données techniques
   attenuationLigne  Float?    // Atténuation en dB
