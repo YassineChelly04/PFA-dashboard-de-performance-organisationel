@@ -36,7 +36,7 @@ export default function LoginForm() {
         toast.error("Identifiants incorrects");
       } else {
         toast.success("Connexion réussie");
-        router.push("/");
+        router.push("/dashboard/actions-fsi");
       }
     } catch {
       toast.error("Erreur de connexion");

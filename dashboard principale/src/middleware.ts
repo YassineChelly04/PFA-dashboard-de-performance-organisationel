@@ -10,8 +10,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protect dashboard routes and root
-  if (pathname.startsWith("/dashboard") || pathname === "/") {
+  // Protect dashboard routes
+  if (pathname.startsWith("/dashboard")) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
@@ -23,4 +23,5 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
+
 
