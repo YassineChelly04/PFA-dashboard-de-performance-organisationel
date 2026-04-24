@@ -37,8 +37,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full bg-tt-bg font-[family-name:var(--font-manrope)] text-gray-900">
         <SessionProvider>
           {children}
-          <Toaster position="top-center" />
         </SessionProvider>
+        <Toaster position="top-center" />
       </body>
     </html>
   );
