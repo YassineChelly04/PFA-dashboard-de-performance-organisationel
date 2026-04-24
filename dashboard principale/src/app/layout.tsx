@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Manrope, Montserrat, Plus_Jakarta_Sans } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 
+import { SessionProvider } from "@/components/SessionProvider";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -33,7 +35,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="fr"
     >
       <body className="min-h-full bg-tt-bg font-[family-name:var(--font-manrope)] text-gray-900">
-        {children}
+        <SessionProvider>
+          {children}
+          <Toaster position="top-center" />
+        </SessionProvider>
       </body>
     </html>
   );
