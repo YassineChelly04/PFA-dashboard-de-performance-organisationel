@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { DashboardChrome } from "@/components/DashboardChrome";
 import { authOptions } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const session = await getServerSession(authOptions);
 
