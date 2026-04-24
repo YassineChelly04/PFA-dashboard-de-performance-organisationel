@@ -85,7 +85,7 @@ export function HistoriquePage({ interventions, client }: Props) {
       {/* Header section */}
       <div className="px-4 lg:px-[20%] pt-6 pb-4">
         <div className="w-full">
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h1 className="font-[family-name:var(--font-montserrat)] text-3xl font-bold text-indigo-900 mb-2">
                 Historique
@@ -128,7 +128,7 @@ export function HistoriquePage({ interventions, client }: Props) {
                   <p className="font-[family-name:var(--font-manrope)] text-[20px] text-[#454652] mb-2">
                     Total interventions
                   </p>
-                  <p className="font-[family-name:var(--font-montserrat)] text-[71px] font-bold leading-none text-[#2D44B8] mb-4">
+                    <p className="font-[family-name:var(--font-montserrat)] text-5xl sm:text-[71px] font-bold leading-none text-[#2D44B8] mb-4">
                     {totalInterventions}
                   </p>
                   <div className="flex items-center gap-2 text-[#454652]">
@@ -151,7 +151,7 @@ export function HistoriquePage({ interventions, client }: Props) {
                   <p className="font-[family-name:var(--font-manrope)] text-[20px] text-[#454652] mb-2">
                     Terminées
                   </p>
-                  <p className="font-[family-name:var(--font-montserrat)] text-[71px] font-bold leading-none text-[#1FB8AF] mb-4">
+                    <p className="font-[family-name:var(--font-montserrat)] text-5xl sm:text-[71px] font-bold leading-none text-[#1FB8AF] mb-4">
                     {terminées}
                   </p>
                   <div className="flex items-center gap-2 text-[#454652]">
@@ -262,7 +262,7 @@ export function HistoriquePage({ interventions, client }: Props) {
                     </p>
                   )}
 
-                  <div className="flex items-center gap-4 text-xs text-slate-500">
+                  <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
                     <div className="flex items-center gap-1">
                       <User size={14} />
                       <span className="font-[family-name:var(--font-montserrat)]">{intervention.technicien.prenom} {intervention.technicien.nom}</span>

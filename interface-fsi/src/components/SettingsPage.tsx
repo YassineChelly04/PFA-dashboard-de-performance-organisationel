@@ -4,23 +4,26 @@ import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
   Bell,
   HelpCircle,
   Home,
   LogOut,
+  Menu,
   Moon,
   Search,
   Settings,
   User,
+  X,
 } from "lucide-react";
 
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -47,14 +50,46 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex overflow-hidden">
-      <aside className="w-[280px] bg-white border-r border-[#e5e7eb] flex flex-col min-h-screen shrink-0 px-4 py-6">
-        <div className="flex items-center gap-3 px-2">
-          <Image src="/logo-tt.png" alt="Tunisie Telecom" width={96} height={48} className="h-12 w-auto" />
-          <div className="leading-tight">
-            <h2 className="text-[#0a277a] font-extrabold text-[15px]">Tunisie Telecom</h2>
-            <p className="text-[#6b7280] text-[12px] mt-0.5">Performance</p>
+    <div className="min-h-screen bg-[#f8fafc] flex overflow-x-hidden">
+      {isSidebarOpen && (
+        <button
+          type="button"
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+          aria-label="Fermer le menu"
+        />
+      )}
+
+      <button
+        type="button"
+        onClick={() => setIsSidebarOpen(true)}
+        className="fixed left-4 top-4 z-50 rounded-xl border border-[#e5e7eb] bg-white p-2 text-[#374151] shadow-lg lg:hidden"
+        aria-label="Ouvrir le menu"
+      >
+        <Menu size={22} />
+      </button>
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-white border-r border-[#e5e7eb] flex flex-col min-h-screen shrink-0 px-4 py-6 transform transition-transform duration-300 ease-out ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:static lg:translate-x-0 lg:z-auto`}
+      >
+        <div className="flex items-center justify-between gap-3 px-2">
+          <div className="flex items-center gap-3">
+            <Image src="/logo-tt.png" alt="Tunisie Telecom" width={96} height={48} className="h-12 w-auto" />
+            <div className="leading-tight">
+              <h2 className="text-[#0a277a] font-extrabold text-[15px]">Tunisie Telecom</h2>
+              <p className="text-[#6b7280] text-[12px] mt-0.5">Performance</p>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen(false)}
+            className="rounded-lg p-1.5 text-[#6b7280] hover:bg-[#f3f4f6] lg:hidden"
+            aria-label="Fermer le menu"
+          >
+            <X size={18} />
+          </button>
         </div>
 
         <nav className="flex-1 mt-6 px-2">
@@ -63,6 +98,7 @@ export default function SettingsPage() {
             <li>
               <Link
                 href="/dashboard"
+                onClick={() => setIsSidebarOpen(false)}
                 className={[
                   "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
                   pathname === "/dashboard"
@@ -77,6 +113,7 @@ export default function SettingsPage() {
             <li>
               <Link
                 href="/settings"
+                onClick={() => setIsSidebarOpen(false)}
                 className={[
                   "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
                   pathname === "/settings"
@@ -90,7 +127,10 @@ export default function SettingsPage() {
             </li>
             <li>
               <button
-                onClick={handleLogout}
+                onClick={() => {
+                  setIsSidebarOpen(false);
+                  void handleLogout();
+                }}
                 className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold text-[#374151] hover:bg-[#f9fafb] transition-colors"
               >
                 <LogOut size={18} className="text-[#6b7280]" />
@@ -102,8 +142,8 @@ export default function SettingsPage() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-white border-b border-[#e5e7eb] flex items-center gap-4 px-8 py-4 shrink-0">
-          <div className="relative flex-1">
+        <header className="bg-white border-b border-[#e5e7eb] flex flex-wrap items-center gap-3 px-4 py-3 pl-16 sm:px-6 sm:pl-20 lg:flex-nowrap lg:gap-4 lg:px-8 lg:pl-8 shrink-0">
+          <div className="relative order-2 w-full lg:order-1 lg:flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]" size={16} />
             <input
               type="search"
@@ -112,7 +152,7 @@ export default function SettingsPage() {
             />
           </div>
 
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="order-3 hidden items-center gap-2 md:flex lg:order-2">
             <button className="grid h-11 w-11 place-items-center rounded-2xl border border-[#e5e7eb] bg-white text-[#4b5563] hover:bg-[#f9fafb] transition-colors">
               <Bell size={20} />
             </button>
@@ -124,12 +164,12 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2">
+          <div className="order-1 ml-auto flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2 lg:order-3 lg:ml-0">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[#e5e7eb] to-[#f3f4f6] ring-1 ring-black/5 flex items-center justify-center">
                 <User size={16} className="text-[#0891b2]" />
               </div>
-              <div className="text-right">
+              <div className="hidden text-right sm:block">
                 <p className="text-[14px] font-extrabold text-[#0a277a]">Tunis Technoparc</p>
                 <p className="text-[12px] text-[#6b7280]">FOURNISSEUR OFFICIEL</p>
               </div>
@@ -137,7 +177,7 @@ export default function SettingsPage() {
           </div>
         </header>
 
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 overflow-auto p-4 sm:p-6">
           <div className="max-w-5xl mx-auto space-y-6">
             <div className="bg-white border border-[#e5e7eb] rounded-[22px] p-6">
               <h1 className="text-[30px] font-bold text-[#0a277a] font-[var(--font-plus-jakarta-sans)]">Settings</h1>

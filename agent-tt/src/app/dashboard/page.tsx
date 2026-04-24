@@ -142,23 +142,23 @@ export default function DashboardPage() {
               <form onSubmit={handleSearch} className="mt-8 w-full max-w-[900px]">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   <div className="relative w-full sm:max-w-[620px]">
-                    <Search size={24} className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-[#7f87bc]" />
+                    <Search size={20} className="pointer-events-none absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-[#7f87bc]" />
                     <input
                       type="text"
                       value={lineNumber}
                       onChange={(e) => setLineNumber(e.target.value)}
                       placeholder="Entrez la ligne (ex: 71 000 000)"
-                      className="h-[68px] w-full rounded-2xl border border-white/10 bg-[#ececf2] px-16 text-[18px] font-medium tracking-[-0.02em] text-[#1f2555] placeholder:text-[#aeb2c8] shadow-[0_14px_36px_rgba(15,23,42,0.16)] outline-none transition focus:border-transparent focus:ring-4 focus:ring-white/20"
+                      className="h-14 sm:h-[68px] w-full rounded-2xl border border-white/10 bg-[#ececf2] px-12 sm:px-16 text-base sm:text-[18px] font-medium tracking-[-0.02em] text-[#1f2555] placeholder:text-[#aeb2c8] shadow-[0_14px_36px_rgba(15,23,42,0.16)] outline-none transition focus:border-transparent focus:ring-4 focus:ring-white/20"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="inline-flex h-[68px] items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#5b2ee2] to-[#6f38ea] px-12 font-[family-name:var(--font-montserrat)] text-[20px] font-semibold text-white shadow-[0_16px_36px_rgba(111,56,234,0.45)] transition hover:from-[#6337eb] hover:to-[#7843f1] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex h-14 sm:h-[68px] w-full sm:w-auto items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#5b2ee2] to-[#6f38ea] px-6 sm:px-12 font-[family-name:var(--font-montserrat)] text-base sm:text-[20px] font-semibold text-white shadow-[0_16px_36px_rgba(111,56,234,0.45)] transition hover:from-[#6337eb] hover:to-[#7843f1] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <span>{loading ? 'Recherche...' : 'Suivant'}</span>
-                    <ArrowRight size={24} />
+                    <ArrowRight size={20} className="sm:h-6 sm:w-6" />
                   </button>
                 </div>
 

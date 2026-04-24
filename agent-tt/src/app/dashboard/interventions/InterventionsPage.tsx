@@ -39,7 +39,7 @@ export function InterventionsPage({ interventions }: Props) {
       <div className="flex-1 px-4 lg:px-[20%] py-6">
         <div className="w-full space-y-6">
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="bg-white rounded-xl p-4 shadow-sm text-center">
               <p className="font-[family-name:var(--font-montserrat)] text-2xl font-bold text-slate-900">{interventions.length}</p>
               <p className="font-[family-name:var(--font-manrope)] text-xs text-slate-500">Total</p>
@@ -68,7 +68,7 @@ export function InterventionsPage({ interventions }: Props) {
                     href={`/dashboard/client/${intervention.client.dLigne}`}
                     className="block bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
                   >
-                    <div className="flex items-start justify-between mb-2">
+                    <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                          <h4 className="font-[family-name:var(--font-montserrat)] font-semibold text-slate-900">
                            {intervention.client.nom}
@@ -104,7 +104,7 @@ export function InterventionsPage({ interventions }: Props) {
                     key={intervention.id}
                     className="bg-white rounded-xl p-4 shadow-sm opacity-75"
                   >
-                    <div className="flex items-start justify-between mb-2">
+                    <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                          <h4 className="font-[family-name:var(--font-montserrat)] font-semibold text-slate-900">
                            {intervention.client.nom}

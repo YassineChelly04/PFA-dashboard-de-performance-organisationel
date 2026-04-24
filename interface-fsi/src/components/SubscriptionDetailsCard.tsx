@@ -23,10 +23,10 @@ export default function SubscriptionDetailsCard({
         {/* Left accent border */}
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#16C5D8]"></div>
 
-        <div className="pl-8 pr-10 py-12">
+        <div className="px-5 py-8 sm:pl-8 sm:pr-10 sm:py-12">
           {/* Header with title and badge */}
-          <div className="flex items-start justify-between mb-12">
-            <h2 className="font-[family-name:var(--font-plus-jakarta-sans)] text-3xl font-bold text-[#0F1C3F]">
+          <div className="mb-8 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-start sm:justify-between">
+            <h2 className="font-[family-name:var(--font-plus-jakarta-sans)] text-2xl sm:text-3xl font-bold text-[#0F1C3F]">
               Détails de l&apos;Abonnement
             </h2>
             
@@ -40,7 +40,7 @@ export default function SubscriptionDetailsCard({
           </div>
 
           {/* Content grid */}
-          <div className="grid grid-cols-2 gap-x-12 gap-y-8">
+          <div className="grid grid-cols-1 gap-x-12 gap-y-8 sm:grid-cols-2">
             {/* Column 1 */}
             <div>
               {/* DLIGNE */}
@@ -98,7 +98,7 @@ export default function SubscriptionDetailsCard({
             </p>
             <div className="flex items-start gap-3">
               <MapPin size={24} className="text-[#0F1C3F] mt-1 flex-shrink-0" />
-              <p className="font-[family-name:var(--font-plus-jakarta-sans)] text-xl font-bold text-[#0F1C3F]">
+              <p className="font-[family-name:var(--font-plus-jakarta-sans)] text-lg sm:text-xl font-bold text-[#0F1C3F]">
                 {region}
               </p>
             </div>

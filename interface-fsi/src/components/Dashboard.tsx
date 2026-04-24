@@ -11,6 +11,8 @@ import {
   LogOut,
   Home,
   Settings,
+  Menu,
+  X,
   Bell,
   HelpCircle,
   Moon,
@@ -58,6 +60,7 @@ export default function Dashboard() {
     latency: 0,
     snr: 0,
   });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -179,16 +182,48 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex overflow-hidden">
+    <div className="min-h-screen bg-[#f8fafc] flex overflow-x-hidden">
+      {isSidebarOpen && (
+        <button
+          type="button"
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+          aria-label="Fermer le menu"
+        />
+      )}
+
+      <button
+        type="button"
+        onClick={() => setIsSidebarOpen(true)}
+        className="fixed left-4 top-4 z-50 rounded-xl border border-[#e5e7eb] bg-white p-2 text-[#374151] shadow-lg lg:hidden"
+        aria-label="Ouvrir le menu"
+      >
+        <Menu size={22} />
+      </button>
+
       {/* Left Sidebar */}
-      <aside className="w-[280px] bg-white border-r border-[#e5e7eb] flex flex-col min-h-screen shrink-0 px-4 py-6">
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-white border-r border-[#e5e7eb] flex flex-col min-h-screen shrink-0 px-4 py-6 transform transition-transform duration-300 ease-out ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:static lg:translate-x-0 lg:z-auto`}
+      >
         {/* Sidebar Header */}
-        <div className="flex items-center gap-3 px-2">
-          <Image src="/logo-tt.png" alt="Tunisie Telecom" width={96} height={48} className="h-12 w-auto" />
-          <div className="leading-tight">
-            <h2 className="text-[#0a277a] font-extrabold text-[15px]">Tunisie Telecom</h2>
-            <p className="text-[#6b7280] text-[12px] mt-0.5">Performance</p>
+        <div className="flex items-center justify-between gap-3 px-2">
+          <div className="flex items-center gap-3">
+            <Image src="/logo-tt.png" alt="Tunisie Telecom" width={96} height={48} className="h-12 w-auto" />
+            <div className="leading-tight">
+              <h2 className="text-[#0a277a] font-extrabold text-[15px]">Tunisie Telecom</h2>
+              <p className="text-[#6b7280] text-[12px] mt-0.5">Performance</p>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen(false)}
+            className="rounded-lg p-1.5 text-[#6b7280] hover:bg-[#f3f4f6] lg:hidden"
+            aria-label="Fermer le menu"
+          >
+            <X size={18} />
+          </button>
         </div>
 
         {/* Sidebar Navigation */}
@@ -196,11 +231,12 @@ export default function Dashboard() {
           <div className="text-[11px] font-bold tracking-wider text-[#9ca3af] mb-2">NAVIGATION</div>
           <ul className="space-y-1">
             <li>
-              <Link
-                href="/dashboard"
-                className={[
-                  "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
-                  pathname === "/dashboard"
+                <Link
+                  href="/dashboard"
+                  onClick={() => setIsSidebarOpen(false)}
+                  className={[
+                    "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
+                    pathname === "/dashboard"
                     ? "bg-gradient-to-r from-[#1E2F97] to-[#5F2EE5] text-white shadow-[0_10px_24px_rgba(95,46,229,0.24)]"
                     : "text-[#374151] hover:bg-[#f9fafb]",
                 ].join(" ")}
@@ -210,11 +246,12 @@ export default function Dashboard() {
               </Link>
             </li>
             <li>
-              <Link
-                href="/settings"
-                className={[
-                  "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
-                  pathname === "/settings"
+                <Link
+                  href="/settings"
+                  onClick={() => setIsSidebarOpen(false)}
+                  className={[
+                    "w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors",
+                    pathname === "/settings"
                     ? "bg-gradient-to-r from-[#1E2F97] to-[#5F2EE5] text-white shadow-[0_10px_24px_rgba(95,46,229,0.24)]"
                     : "text-[#374151] hover:bg-[#f9fafb]",
                 ].join(" ")}
@@ -225,7 +262,10 @@ export default function Dashboard() {
             </li>
             <li>
               <button
-                onClick={handleLogout}
+                onClick={() => {
+                  setIsSidebarOpen(false);
+                  void handleLogout();
+                }}
                 className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold text-[#374151] hover:bg-[#f9fafb] transition-colors"
               >
                 <LogOut size={18} className="text-[#6b7280]" />
@@ -239,9 +279,9 @@ export default function Dashboard() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="bg-white border-b border-[#e5e7eb] flex items-center gap-4 px-8 py-4 shrink-0">
+        <header className="bg-white border-b border-[#e5e7eb] flex flex-wrap items-center gap-3 px-4 py-3 pl-16 sm:px-6 sm:pl-20 lg:flex-nowrap lg:gap-4 lg:px-8 lg:pl-8 shrink-0">
           {/* Search Bar */}
-          <div className="relative flex-1">
+          <div className="relative order-2 w-full lg:order-1 lg:flex-1">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]" size={16} />
               <input
@@ -253,7 +293,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right Icons */}
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="order-3 hidden items-center gap-2 md:flex lg:order-2">
             <button className="grid h-11 w-11 place-items-center rounded-2xl border border-[#e5e7eb] bg-white text-[#4b5563] hover:bg-[#f9fafb] transition-colors">
               <Bell size={20} />
             </button>
@@ -265,13 +305,13 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2">
+          <div className="order-1 ml-auto flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2 lg:order-3 lg:ml-0">
             {/* User Info */}
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[#e5e7eb] to-[#f3f4f6] ring-1 ring-black/5 flex items-center justify-center">
                 <User size={16} className="text-[#0891b2]" />
               </div>
-              <div className="text-right">
+              <div className="hidden text-right sm:block">
                 <p className="text-[14px] font-extrabold text-[#0a277a]">Tunis Technoparc</p>
                 <p className="text-[12px] text-[#6b7280]">FOURNISSEUR OFFICIEL</p>
               </div>
@@ -280,9 +320,9 @@ export default function Dashboard() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 px-6 xl:px-[15%] py-5 overflow-auto">
+        <main className="flex-1 overflow-auto px-4 py-4 sm:px-6 sm:py-5 xl:px-[15%]">
           {/* Blue Header Section */}
-          <div className="relative overflow-hidden bg-[#1E2F97] rounded-[22px] p-8 mb-6 min-h-[213px]">
+          <div className="relative overflow-hidden bg-[#1E2F97] rounded-[22px] p-5 sm:p-8 mb-6 min-h-[213px]">
             <Image
               src="/cable.png"
               alt="Cable background"
@@ -292,10 +332,10 @@ export default function Dashboard() {
             />
             <div className="absolute inset-0 bg-[#1E2F97]/55"></div>
             <div className="relative z-10">
-                <h1 className="text-white text-[29px] font-bold mb-3 font-[var(--font-plus-jakarta-sans)]">
+                <h1 className="text-white text-[24px] sm:text-[29px] font-bold mb-3 font-[var(--font-plus-jakarta-sans)]">
                   Accueil
                 </h1>
-                <p className="text-white/70 text-[14px] leading-6 mb-6 max-w-[570px] font-[var(--font-manrope)]">
+                <p className="text-white/70 text-[14px] leading-6 mb-6 max-w-full sm:max-w-[570px] font-[var(--font-manrope)]">
                   Entrez le numéro de la ligne fixe ou mobile pour accéder aux détails techniques et aux actions de maintenance.
                 </p>
 
@@ -310,7 +350,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Search Input */}
-                <div className="flex gap-3 max-w-[560px]">
+                <div className="flex flex-col gap-3 sm:flex-row sm:max-w-[560px]">
                   <div className="flex-1 relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]" size={20} />
                     <input
@@ -325,7 +365,7 @@ export default function Dashboard() {
                   <button
                     onClick={handleSearch}
                     disabled={isSearching}
-                    className="px-6 py-3.5 bg-[#5F2EE5] hover:bg-[#5227cf] text-white font-medium rounded-[14px] transition-all flex items-center gap-2 disabled:opacity-50 text-[14px] shadow-sm font-[var(--font-plus-jakarta-sans)]"
+                    className="w-full sm:w-auto justify-center px-6 py-3.5 bg-[#5F2EE5] hover:bg-[#5227cf] text-white font-medium rounded-[14px] transition-all flex items-center gap-2 disabled:opacity-50 text-[14px] shadow-sm font-[var(--font-plus-jakarta-sans)]"
                   >
                     {isSearching ? (
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -352,7 +392,7 @@ export default function Dashboard() {
                   
                   <div className="flex-1 p-6">
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <h2 className="text-[16px] font-semibold text-[#00157C] font-[var(--font-plus-jakarta-sans)]">
                         Détails de l&apos;Abonnement
                       </h2>
@@ -365,7 +405,7 @@ export default function Dashboard() {
                     </div>
 
                     {/* Info Grid */}
-                    <div className="grid grid-cols-2 gap-x-10 gap-y-5 mb-5">
+                    <div className="grid grid-cols-1 gap-x-10 gap-y-5 mb-5 sm:grid-cols-2">
                       <div>
                         <p className="text-[11px] text-[#7a7e8c] uppercase tracking-wide mb-1 font-[var(--font-plus-jakarta-sans)]">DLIGNE</p>
                         <p className="text-[15px] font-semibold text-[#222222]">{lineData.dligne}</p>
@@ -389,7 +429,7 @@ export default function Dashboard() {
                     {/* Divider */}
                     <div className="border-t border-[#e5e7eb] pt-4">
                       <p className="text-[11px] text-[#7a7e8c] uppercase tracking-wide mb-1 font-[var(--font-plus-jakarta-sans)]">RÉGION & ZONE</p>
-                      <div className="flex items-center gap-2 text-[15px] text-[#222222]">
+                      <div className="flex flex-wrap items-center gap-2 text-[15px] text-[#222222]">
                         <MapPin size={16} className="text-[#00157C]" />
                         <span className="font-semibold">{lineData.region}, {lineData.zone}</span>
                       </div>
@@ -399,7 +439,7 @@ export default function Dashboard() {
               </div>
 
               {/* Metrics Cards */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Latency Card */}
                 <div className="bg-[#F2F3F7] rounded-[22px] shadow-[0_1px_6px_rgba(15,23,42,0.08)] p-5">
                   <div className="flex items-center gap-4">

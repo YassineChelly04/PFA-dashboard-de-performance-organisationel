@@ -31,7 +31,7 @@ function isActive(activePath: string, href: string): boolean {
 
 export function Sidebar({ activePath }: { activePath: string }) {
   return (
-    <aside className="flex h-full w-[280px] flex-col gap-6 border-r border-tt-border bg-white px-4 py-6">
+    <aside className="flex h-full w-[280px] flex-col gap-6 overflow-y-auto border-r border-tt-border bg-white px-4 py-6">
       <div className="flex items-center gap-3 px-2">
         <Image alt="Tunisie Telecom" className="h-12 w-auto" height={48} src="/logo-tt.png" width={96} />
         <div className="leading-tight">

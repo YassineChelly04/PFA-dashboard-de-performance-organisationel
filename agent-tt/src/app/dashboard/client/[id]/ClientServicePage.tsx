@@ -44,7 +44,7 @@ export function ClientServicePage({ client }: Props) {
         <div className="w-full space-y-4">
           {/* Client Card */}
           <div className="bg-white rounded-2xl p-5 shadow-lg shadow-slate-200/50 border-l-4 border-teal-400">
-            <div className="flex items-start justify-between mb-4">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="font-[family-name:var(--font-montserrat)] text-2xl font-bold text-indigo-900 italic leading-tight">
                   {client.nom.split(' ').slice(0, 2).join(' ')}<br/>
@@ -60,7 +60,7 @@ export function ClientServicePage({ client }: Props) {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-y-4 gap-x-8 mt-6">
+            <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
               <div>
                 <span className="font-[family-name:var(--font-montserrat)] text-xs font-semibold text-slate-400 tracking-wide">OFFRE</span>
                 <p className="font-[family-name:var(--font-manrope)] font-semibold text-indigo-900 mt-0.5">{client.offre.replace('Offre de Gros ', '').split(' ')[0]} Guiga</p>

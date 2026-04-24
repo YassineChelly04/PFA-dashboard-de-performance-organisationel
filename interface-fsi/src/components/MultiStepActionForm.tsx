@@ -615,7 +615,7 @@ export default function MultiStepActionForm({
             className="w-full min-h-[120px] px-4 py-3 bg-[#f9fafb] border border-[#e5e7eb] rounded-[10px] text-[14px] text-[#1f2937] placeholder-[#9ca3af] resize-none outline-none focus:border-[#1e3a6e] focus:ring-2 focus:ring-[#1e3a6e]/20"
           />
         ) : (
-          <div className={currentStep.isGrid ? "grid grid-cols-2 gap-2" : "flex flex-col gap-2"}>
+          <div className={currentStep.isGrid ? "grid grid-cols-1 gap-2 sm:grid-cols-2" : "flex flex-col gap-2"}>
             {(currentStep.id === "step-issue" ? issueChoices : currentStep.choices ?? []).map((choice) => (
               <button
                 key={choice.value}
@@ -662,13 +662,13 @@ export default function MultiStepActionForm({
           </div>
         )}
 
-        <div className="flex gap-2.5 mt-7">
+        <div className="mt-7 flex flex-col gap-2.5 sm:flex-row">
           {currentStepIndex > 0 && (
             <button
               type="button"
               onClick={handleBack}
               disabled={isSaving}
-              className="h-[42px] rounded-lg border border-[#e5e7eb] bg-[#f9fafb] text-[#9ca3af] px-5 text-[14px] font-semibold hover:border-[#d1d5db] hover:text-[#1f2937] transition-all flex-shrink-0 font-[family-name:var(--font-montserrat)] disabled:opacity-50"
+              className="h-[42px] w-full rounded-lg border border-[#e5e7eb] bg-[#f9fafb] text-[#9ca3af] px-5 text-[14px] font-semibold hover:border-[#d1d5db] hover:text-[#1f2937] transition-all sm:w-auto sm:flex-shrink-0 font-[family-name:var(--font-montserrat)] disabled:opacity-50"
             >
               Retour
             </button>
@@ -677,7 +677,7 @@ export default function MultiStepActionForm({
             type="button"
             onClick={handleNext}
             disabled={!isAnswered || isSaving}
-            className="h-[42px] rounded-lg bg-[#1e3a6e] text-white px-5 text-[14px] font-semibold flex-1 flex items-center justify-center gap-1.5 hover:bg-[#2a4a8e] transition-all disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[#1e3a6e] font-[family-name:var(--font-montserrat)]"
+            className="h-[42px] w-full rounded-lg bg-[#1e3a6e] text-white px-5 text-[14px] font-semibold flex items-center justify-center gap-1.5 hover:bg-[#2a4a8e] transition-all sm:flex-1 disabled:opacity-35 disabled:cursor-not-allowed disabled:hover:bg-[#1e3a6e] font-[family-name:var(--font-montserrat)]"
           >
             {isSaving ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
