@@ -26,6 +26,28 @@ Le script `db:import:xlsx` lit `PFA/database/all-data.xlsx` et remplit la table 
 
 - `DATABASE_URL`
 - `PRISMA_DATABASE_URL`
+- `GROQ_API_KEY` (generation du rapport Pareto intelligent)
+- `GROQ_MODEL` (optionnel, defaut: `llama-3.3-70b-versatile`)
+
+### Rapport Pareto intelligent (IA)
+
+- Endpoint: `POST /api/pareto/report`
+- Portees supportees: `mensuel`, `annuel`, `global`
+- Le mode `global` force l'analyse sur toutes les donnees (sans filtre periode)
+- Sortie: rapport texte professionnel (copiable depuis l'interface Pareto)
+
+Exemple de payload:
+
+```json
+{
+  "scope": "mensuel",
+  "filters": {
+    "region": "TUNIS",
+    "offer": "ADSL",
+    "q": "ipmsan"
+  }
+}
+```
 
 ## Lancer localement
 

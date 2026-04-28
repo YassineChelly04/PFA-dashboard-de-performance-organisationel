@@ -12,6 +12,7 @@ import { loadDashboardIncidentsSafely } from "@/lib/dashboardData";
 import { applyFilters, parseDashboardFilters } from "@/lib/filters";
 import { formatHours1, formatIntFr, formatPct1, formatSignedPct1 } from "@/lib/format";
 import { groupMeanHours, mean, paretoFromCounts, statusSplit, topNCounts } from "@/lib/metrics";
+import { ParetoIntelligentReportCard } from "./ParetoIntelligentReportCard";
 
 export const dynamic = "force-dynamic";
 
@@ -87,7 +88,6 @@ export default async function ParetoPage({
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <PageHeader
           kicker="ANALYSE"
-          primaryActionLabel="Exporter Rapport"
           secondaryActionLabel="Derniers 30 jours"
           title="Pareto"
         />
@@ -97,6 +97,8 @@ export default async function ParetoPage({
           <OfferSelect offers={offers} value={filters.offer} />
         </div>
       </div>
+
+      <ParetoIntelligentReportCard filters={filters} />
 
       <div className="grid gap-4 lg:grid-cols-4">
         <Card className="p-5">
