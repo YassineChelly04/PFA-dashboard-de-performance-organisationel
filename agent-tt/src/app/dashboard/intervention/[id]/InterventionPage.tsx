@@ -2,13 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { 
   BarChart3,
-  Lightbulb, 
   CheckCircle, 
   Clock,
-  AlertTriangle,
   ListFilter
 } from 'lucide-react'
 
@@ -33,13 +30,11 @@ interface Props {
 
 export function InterventionPage({ client, resolutionCodes, productTypes }: Props) {
   const router = useRouter()
-  const { data: session } = useSession()
   
   const [productType, setProductType] = useState('')
   const [resolutionCode, setResolutionCode] = useState('')
   const [observation, setObservation] = useState('')
   const [saving, setSaving] = useState(false)
-  const [showAiModal, setShowAiModal] = useState(false)
   const [saved, setSaved] = useState(false)
 
   const attenuationLevel = client.attenuationLigne || 0
@@ -59,10 +54,9 @@ export function InterventionPage({ client, resolutionCodes, productTypes }: Prop
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clientId: client.id,
-          technicienId: (session?.user as any)?.id,
-          productType: productType || 'Non spécifié',
-          resolutionCode: resolutionCode || 'Standard',
-          resolutionObservation: observation,
+          productType: productType.trim() || null,
+          resolutionCode: resolutionCode.trim() || null,
+          resolutionObservation: observation.trim(),
         }),
       })
 
@@ -72,17 +66,18 @@ export function InterventionPage({ client, resolutionCodes, productTypes }: Prop
           router.push(`/dashboard/client/${client.id}`)
         }, 1500)
       } else {
-        alert('Erreur lors de la sauvegarde')
+        const payload = await response.json().catch(() => null)
+        const message =
+          typeof payload?.error === 'string' && payload.error.trim().length > 0
+            ? payload.error
+            : 'Erreur lors de la sauvegarde'
+        alert(message)
       }
-    } catch (error) {
+    } catch {
       alert('Erreur de connexion')
     } finally {
       setSaving(false)
     }
-  }
-
-  const handleAiSuggestion = () => {
-    setShowAiModal(true)
   }
 
   if (saved) {
@@ -168,6 +163,47 @@ export function InterventionPage({ client, resolutionCodes, productTypes }: Prop
               Détails de l&apos;intervention
             </h3>
 
+            <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Resolution code
+                </label>
+                <input
+                  value={resolutionCode}
+                  onChange={(e) => setResolutionCode(e.target.value)}
+                  placeholder="Ex: IPMSAN"
+                  list="resolution-code-options"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <datalist id="resolution-code-options">
+                  {resolutionCodes.map((code) => (
+                    <option key={code} value={code} />
+                  ))}
+                </datalist>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Product type
+                </label>
+                <input
+                  value={productType}
+                  onChange={(e) => setProductType(e.target.value)}
+                  placeholder="Ex: Peigne de coffret"
+                  list="product-type-options"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <datalist id="product-type-options">
+                  {productTypes.map((type) => (
+                    <option key={type} value={type} />
+                  ))}
+                </datalist>
+              </div>
+            </div>
+
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Resolution observation TT
+            </label>
             <textarea
               value={observation}
               onChange={(e) => setObservation(e.target.value)}
@@ -179,15 +215,6 @@ export function InterventionPage({ client, resolutionCodes, productTypes }: Prop
 
           {/* Action Buttons */}
           <div className="space-y-3 pt-2">
-            {/* AI Suggestion Button */}
-            <button
-              onClick={handleAiSuggestion}
-              className="w-full flex items-center justify-center gap-2 py-4 px-5 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500 text-white font-semibold rounded-2xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-purple-500/30"
-            >
-              <Lightbulb size={20} />
-              <span>Recommandation IA</span>
-            </button>
-
             {/* History Button */}
             <button
               onClick={() => {
@@ -214,36 +241,6 @@ export function InterventionPage({ client, resolutionCodes, productTypes }: Prop
           </div>
         </div>
       </div>
-
-      {/* AI Modal */}
-      {showAiModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lightbulb className="text-purple-600" size={32} />
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">
-                Recommandation IA
-              </h3>
-              <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-left mb-4">
-                <AlertTriangle className="text-amber-500 shrink-0 mt-0.5" size={18} />
-                <p className="text-sm text-amber-700">
-                  Cette fonctionnalité est en cours de développement. 
-                  Elle utilisera l&apos;apprentissage automatique pour suggérer 
-                  le code de résolution et le type de produit optimaux.
-                </p>
-              </div>
-              <button
-                onClick={() => setShowAiModal(false)}
-                className="w-full py-3 bg-indigo-900 text-white font-semibold rounded-xl hover:bg-indigo-800 transition-colors"
-              >
-                Compris
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -1,22 +1,47 @@
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
+import { authOptions } from '@/lib/auth'
 import { canUseWorkbookRuntimeFallback } from '@/lib/runtime'
+
+function formatResolutionDuration(openTime: Date, closeTime: Date) {
+  const durationInSeconds = Math.max(
+    0,
+    Math.floor((closeTime.getTime() - openTime.getTime()) / 1000)
+  )
+  const days = Math.floor(durationInSeconds / 86400)
+  const hours = Math.floor((durationInSeconds % 86400) / 3600)
+  const minutes = Math.floor((durationInSeconds % 3600) / 60)
+  const seconds = durationInSeconds % 60
+
+  return `${days} ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(
+    seconds
+  ).padStart(2, '0')}`
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { clientId, technicienId, productType, resolutionCode, resolutionObservation } = body
+    const { clientId, technicienId: requestTechnicienId, productType, resolutionCode, resolutionObservation } = body
+    const session = await getServerSession(authOptions)
+    const sessionTechnicienId = session?.user?.id
 
-    if (!clientId || !technicienId || !productType || !resolutionCode) {
+    const normalizedObservation = String(resolutionObservation ?? '').trim()
+    const normalizedProductType = String(productType ?? '').trim()
+    const normalizedResolutionCode = String(resolutionCode ?? '').trim()
+
+    const effectiveTechnicienId = String(sessionTechnicienId ?? requestTechnicienId ?? '').trim()
+
+    if (!clientId || !effectiveTechnicienId || !normalizedObservation) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
+        { error: 'Authentification invalide ou expirée. Veuillez vous reconnecter.' },
+        { status: 401 }
       )
     }
 
     const client = await prisma.client.findUnique({
       where: { id: clientId },
-      select: { dLigne: true },
+      select: { dLigne: true, openTimeHPSM: true, downtimeStart: true },
     })
 
     if (!client) {
@@ -24,15 +49,20 @@ export async function POST(request: Request) {
     }
 
     const closeTime = new Date()
+    const openTime = client.openTimeHPSM ?? client.downtimeStart
+    const resolutionDuration = openTime
+      ? formatResolutionDuration(openTime, closeTime)
+      : null
 
     if (canUseWorkbookRuntimeFallback()) {
       const { updateWorkbookIntervention } = await import('@/lib/workbook')
       const workbookUpdated = updateWorkbookIntervention(client.dLigne, {
         problemStatus: 'Clôturé',
         closeTime,
-        resolutionCode,
-        productType,
-        resolutionObservation,
+        resolutionCode: normalizedResolutionCode || undefined,
+        productType: normalizedProductType || undefined,
+        resolutionObservation: normalizedObservation,
+        resolutionDuration: resolutionDuration || undefined,
       })
 
       if (!workbookUpdated) {
@@ -47,10 +77,11 @@ export async function POST(request: Request) {
       const createdIntervention = await tx.intervention.create({
         data: {
           clientId,
-          technicienId,
-          productType,
-          resolutionCode,
-          resolutionObservation,
+          technicienId: effectiveTechnicienId,
+          productType: normalizedProductType || null,
+          resolutionCode: normalizedResolutionCode || null,
+          resolutionObservation: normalizedObservation,
+          resolutionDuration,
           status: 'Terminé',
           closeTime,
         },
@@ -61,9 +92,10 @@ export async function POST(request: Request) {
         data: {
           problemStatus: 'Clôturé',
           closeTime,
-          resolutionCode,
-          productType,
-          resolutionObservation: resolutionObservation || null,
+          resolutionCode: normalizedResolutionCode || null,
+          productType: normalizedProductType || null,
+          resolutionObservation: normalizedObservation,
+          resolutionDuration,
         },
       })
 
@@ -96,6 +128,16 @@ export async function GET(request: Request) {
             nom: true,
             dLigne: true,
             offre: true,
+            referenceExtranet: true,
+            refHPSM: true,
+            openTimeHPSM: true,
+            downtimeStart: true,
+            closeTime: true,
+            resolutionCode: true,
+            productType: true,
+            resolutionObservation: true,
+            resolutionDuration: true,
+            problemStatus: true,
           },
         },
         technicien: {
