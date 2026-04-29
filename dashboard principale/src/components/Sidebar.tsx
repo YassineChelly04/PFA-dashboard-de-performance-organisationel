@@ -96,20 +96,7 @@ export function Sidebar({ activePath }: { activePath: string }) {
               <LineChart className="h-4 w-4" />
               Pareto
             </Link>
-            <Link
-              className={navItemClass(isActive(activePath, dashboardPath("/delais-sla")))}
-              href={dashboardPath("/delais-sla")}
-            >
-              <BarChart3 className="h-4 w-4" />
-              Délais SLA
-            </Link>
-            <Link
-              className={navItemClass(isActive(activePath, dashboardPath("/detail-lignes")))}
-              href={dashboardPath("/detail-lignes")}
-            >
-              <FileText className="h-4 w-4" />
-              Détail lignes
-            </Link>
+            
           </div>
         </div>
 
@@ -138,6 +125,13 @@ export function Sidebar({ activePath }: { activePath: string }) {
             >
               <BriefcaseBusiness className="h-4 w-4" />
               Actions FSI
+            </Link>
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/detail-lignes")))}
+              href={dashboardPath("/detail-lignes")}
+            >
+              <FileText className="h-4 w-4" />
+              Détail lignes
             </Link>
           </div>
         </div>

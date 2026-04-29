@@ -72,7 +72,6 @@ Routes :
 - `/regions`
 - `/resolutions-tt`
 - `/actions-fsi`
-- `/delais-sla`
 - `/detail-lignes`
 
 ## Notes
