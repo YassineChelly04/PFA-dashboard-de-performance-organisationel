@@ -4,10 +4,8 @@ import Image from "next/image";
 import {
   BarChart3,
   BriefcaseBusiness,
-  FileSpreadsheet,
   FileText,
   GitBranch,
-  Globe2,
   Layers,
   LayoutDashboard,
   LineChart,
@@ -15,6 +13,8 @@ import {
   Megaphone,
   Wrench,
 } from "lucide-react";
+
+const dashboardPath = (path: string) => `/dashboard${path}`;
 
 const navItemClass = (active: boolean) =>
   [
@@ -25,7 +25,6 @@ const navItemClass = (active: boolean) =>
   ].join(" ");
 
 function isActive(activePath: string, href: string): boolean {
-  if (href === "/") return activePath === "/";
   return activePath === href || activePath.startsWith(`${href}/`);
 }
 
@@ -46,40 +45,43 @@ export function Sidebar({ activePath }: { activePath: string }) {
             NAVIGATION
           </div>
           <div className="mt-2 space-y-1">
-            <Link className={navItemClass(isActive(activePath, "/"))} href="/">
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/vue-globale")))}
+              href={dashboardPath("/vue-globale")}
+            >
               <LayoutDashboard className="h-4 w-4" />
               Vue globale
             </Link>
-            <Link className={navItemClass(isActive(activePath, "/reclamations"))} href="/reclamations">
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/reclamations")))}
+              href={dashboardPath("/reclamations")}
+            >
               <Megaphone className="h-4 w-4" />
               <span className="flex-1">Réclamations</span>
               <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[11px] font-extrabold text-white">
                 247
               </span>
             </Link>
-            <Link className={navItemClass(isActive(activePath, "/interventions"))} href="/interventions">
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/interventions")))}
+              href={dashboardPath("/interventions")}
+            >
               <Wrench className="h-4 w-4" />
               Interventions
             </Link>
-            <Link className={navItemClass(isActive(activePath, "/performance"))} href="/performance">
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/performance")))}
+              href={dashboardPath("/performance")}
+            >
               <BarChart3 className="h-4 w-4" />
               Performance
             </Link>
-            <Link className={navItemClass(isActive(activePath, "/offres-produits"))} href="/offres-produits">
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/offres-produits")))}
+              href={dashboardPath("/offres-produits")}
+            >
               <Layers className="h-4 w-4" />
               Offres & Produits
-            </Link>
-            <Link className={navItemClass(isActive(activePath, "/regions"))} href="/regions">
-              <MapPin className="h-4 w-4" />
-              Régions
-            </Link>
-            <Link className={navItemClass(isActive(activePath, "/resolutions-tt"))} href="/resolutions-tt">
-              <GitBranch className="h-4 w-4" />
-              Résolutions TT
-            </Link>
-            <Link className={navItemClass(isActive(activePath, "/actions-fsi"))} href="/actions-fsi">
-              <BriefcaseBusiness className="h-4 w-4" />
-              Actions FSI
             </Link>
           </div>
         </div>
@@ -87,15 +89,24 @@ export function Sidebar({ activePath }: { activePath: string }) {
         <div>
           <div className="px-2 text-[11px] font-bold tracking-wider text-gray-400">ANALYSE</div>
           <div className="mt-2 space-y-1">
-            <Link className={navItemClass(isActive(activePath, "/pareto"))} href="/pareto">
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/pareto")))}
+              href={dashboardPath("/pareto")}
+            >
               <LineChart className="h-4 w-4" />
               Pareto
             </Link>
-            <Link className={navItemClass(isActive(activePath, "/delais-sla"))} href="/delais-sla">
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/delais-sla")))}
+              href={dashboardPath("/delais-sla")}
+            >
               <BarChart3 className="h-4 w-4" />
               Délais SLA
             </Link>
-            <Link className={navItemClass(isActive(activePath, "/detail-lignes"))} href="/detail-lignes">
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/detail-lignes")))}
+              href={dashboardPath("/detail-lignes")}
+            >
               <FileText className="h-4 w-4" />
               Détail lignes
             </Link>
@@ -103,18 +114,34 @@ export function Sidebar({ activePath }: { activePath: string }) {
         </div>
 
         <div>
-          <div className="px-2 text-[11px] font-bold tracking-wider text-gray-400">EXPORT</div>
+          <div className="px-2 text-[11px] font-bold tracking-wider text-gray-400">
+            OPÉRATIONS DÉTAILLÉES
+          </div>
           <div className="mt-2 space-y-1">
-            <button className={navItemClass(false)} type="button">
-              <FileText className="h-4 w-4" />
-              Rapport PDF
-            </button>
-            <button className={navItemClass(false)} type="button">
-              <FileSpreadsheet className="h-4 w-4" />
-              Export Excel
-            </button>
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/regions")))}
+              href={dashboardPath("/regions")}
+            >
+              <MapPin className="h-4 w-4" />
+              Régions
+            </Link>
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/resolutions-tt")))}
+              href={dashboardPath("/resolutions-tt")}
+            >
+              <GitBranch className="h-4 w-4" />
+              Résolutions TT
+            </Link>
+            <Link
+              className={navItemClass(isActive(activePath, dashboardPath("/actions-fsi")))}
+              href={dashboardPath("/actions-fsi")}
+            >
+              <BriefcaseBusiness className="h-4 w-4" />
+              Actions FSI
+            </Link>
           </div>
         </div>
+
       </div>
 
       <div className="mt-auto px-2 text-xs text-gray-400">

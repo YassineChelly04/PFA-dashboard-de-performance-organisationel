@@ -4,14 +4,16 @@ import { OfferSelect, PeriodSelect, RegionSelect } from "@/components/QueryContr
 import { Card } from "@/components/ui/Card";
 import { DonutChart } from "@/components/charts/DonutChart";
 import { HorizontalBarChart } from "@/components/charts/HorizontalBarChart";
-import { VerticalBarChart } from "@/components/charts/VerticalBarChart";
+import { serviceBucket, type ServiceBucket } from "@/lib/buckets";
 import { distinctOffers, distinctRegions } from "@/lib/catalog";
 import { loadDashboardIncidentsSafely } from "@/lib/dashboardData";
 import { applyFilters, parseDashboardFilters } from "@/lib/filters";
 import { formatDays1FromHours, formatIntFr } from "@/lib/format";
-import { groupMeanHours, mean, topNCounts } from "@/lib/metrics";
+import { groupMeanHours, mean } from "@/lib/metrics";
 
 export const dynamic = "force-dynamic";
+
+const FAMILY_ORDER: ServiceBucket[] = ["Technique Réseau", "Technique Local", "Service / Client"];
 
 export default async function PerformancePage({
   searchParams,
@@ -50,11 +52,45 @@ export default async function PerformancePage({
     value: Math.round((x.meanHours / 24) * 10) / 10,
   }));
 
-  const families = topNCounts(filtered, (r) => r.productType, 3).map((x) => ({
-    label: x.key,
-    value: x.count,
+  const familyAggregates = new Map<
+    ServiceBucket,
+    { volume: number; durationCount: number; durationSumHours: number }
+  >(
+    FAMILY_ORDER.map((family) => [
+      family,
+      {
+        volume: 0,
+        durationCount: 0,
+        durationSumHours: 0,
+      },
+    ]),
+  );
+
+  for (const row of filtered) {
+    const family = serviceBucket(row.productType);
+    const entry = familyAggregates.get(family);
+    if (!entry) continue;
+    entry.volume += 1;
+    if (row.durationHours !== null) {
+      entry.durationCount += 1;
+      entry.durationSumHours += row.durationHours;
+    }
+  }
+
+  const familyStats = [...familyAggregates.entries()]
+    .map(([family, values]) => ({
+      family,
+      meanHours: values.durationCount > 0 ? values.durationSumHours / values.durationCount : 0,
+      volume: values.volume,
+      durationCount: values.durationCount,
+    }))
+    .sort((a, b) => b.meanHours - a.meanHours || b.volume - a.volume);
+
+  const familyDurationChart = familyStats.map((item) => ({
+    label: item.family,
+    value: Number((item.meanHours / 24).toFixed(1)),
   }));
-  const avgFamilyCount = mean(families.map((f) => f.value)) ?? 0;
+  const improvementAxis = familyStats.find((item) => item.durationCount > 0) ?? null;
 
   return (
     <div className="mx-auto flex max-w-[1400px] flex-col gap-8">
@@ -139,15 +175,27 @@ export default async function PerformancePage({
         <div className="text-lg font-extrabold text-tt-navy">
           Temps par type d&apos;intervention (famille TT)
         </div>
-        <div className="mt-2 text-sm text-gray-500">
-          Top 3 product_type par volume (proxy de familles)
-        </div>
+        <div className="mt-2 text-sm text-gray-500">Classement des 3 familles TT par délai moyen</div>
         <div className="mt-4">
-          <VerticalBarChart
-            averageLabel={`${formatIntFr(avgFamilyCount)} MOYENNE`}
-            averageY={avgFamilyCount}
-            data={families.map((f) => ({ label: f.label, value: f.value }))}
-          />
+          <HorizontalBarChart data={familyDurationChart} barColor="#5F2EE5" />
+        </div>
+        <div className="mt-4 space-y-2 text-sm">
+          {familyStats.map((item) => (
+            <div key={item.family} className="flex items-center justify-between gap-3">
+              <div className="font-semibold text-gray-800">{item.family}</div>
+              <div className="text-right font-extrabold text-gray-900">
+                {formatDays1FromHours(item.meanHours)}j • {formatIntFr(item.volume)} interventions
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 rounded-2xl bg-sky-50 p-4 text-sm text-sky-900 ring-1 ring-sky-100">
+          Axe prioritaire à améliorer:{" "}
+          <span className="font-extrabold">
+            {improvementAxis
+              ? `${improvementAxis.family} (${formatDays1FromHours(improvementAxis.meanHours)}j)`
+              : "Aucune donnée de délai disponible"}
+          </span>
         </div>
       </Card>
 

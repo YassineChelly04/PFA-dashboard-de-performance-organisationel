@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { DashboardDataUnavailableState } from "@/components/DashboardDataUnavailableState";
 import { PageHeader } from "@/components/PageHeader";
 import { ParetoMiniChart } from "@/components/charts/ParetoMiniChart";
@@ -12,12 +14,36 @@ import { mean, paretoFromCounts, topNCounts } from "@/lib/metrics";
 
 export const dynamic = "force-dynamic";
 
+function readSingleParam(value: string | string[] | undefined): string | null {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value ?? null;
+}
+
 export default async function ReclamationsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
+  const showCompleteStats = readSingleParam(sp.stats) === "complete";
+  const topProblemsLimit = showCompleteStats ? 10 : 3;
+  const toggleStatsHref = (() => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(sp)) {
+      if (Array.isArray(value)) {
+        if (value[0]) params.set(key, value[0]);
+        continue;
+      }
+      if (value) params.set(key, value);
+    }
+
+    if (showCompleteStats) params.delete("stats");
+    else params.set("stats", "complete");
+
+    const qs = params.toString();
+    return qs ? `/dashboard/reclamations?${qs}` : "/dashboard/reclamations";
+  })();
+
   const incidents = await loadDashboardIncidentsSafely();
   if (!incidents.ok) {
     return <DashboardDataUnavailableState />;
@@ -39,7 +65,7 @@ export default async function ReclamationsPage({
   const offers = distinctOffers(all);
   const months = distinctMonths(all);
 
-  const topProblems = topNCounts(filtered, (r) => r.briefDescription, 3);
+  const topProblems = topNCounts(filtered, (r) => r.briefDescription, topProblemsLimit);
   const total = filtered.length || 1;
 
   const clusters = offerClusterCounts(filtered);
@@ -74,7 +100,9 @@ export default async function ReclamationsPage({
       <Card className="p-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
-            <div className="text-lg font-extrabold text-tt-navy">Top 10 des Problèmes (Description)</div>
+            <div className="text-lg font-extrabold text-tt-navy">
+              Top {topProblemsLimit} des Problèmes (Description)
+            </div>
             <div className="mt-1 text-sm text-gray-500">
               Fréquence d&apos;occurrence par motif de réclamation (brief_description)
             </div>
@@ -109,9 +137,9 @@ export default async function ReclamationsPage({
         </div>
 
         <div className="mt-6 text-center">
-          <button className="text-xs font-extrabold tracking-wider text-tt-blue" type="button">
-            AFFICHER LES STATISTIQUES COMPLÈTES
-          </button>
+          <Link className="text-xs font-extrabold tracking-wider text-tt-blue" href={toggleStatsHref}>
+            {showCompleteStats ? "AFFICHER LE RÉSUMÉ" : "AFFICHER LES STATISTIQUES COMPLÈTES"}
+          </Link>
         </div>
       </Card>
 

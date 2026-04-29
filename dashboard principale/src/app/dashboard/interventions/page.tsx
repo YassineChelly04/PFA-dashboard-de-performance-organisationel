@@ -44,14 +44,19 @@ export default async function InterventionsPage({
       ? (filtered.filter((r) => isClosed(r.status)).length / filtered.length) * 100
       : 0;
 
-  const family = topNCounts(filtered, (r) => r.productType, 3);
+  const family = topNCounts(filtered, (r) => r.productType, 5);
   const totalFamily = family.reduce((s, x) => s + x.count, 0) || 1;
   const donut = family.map((x) => ({
     name: x.key,
     value: x.count,
   }));
 
-  const offersRank = topNCounts(filtered, (r) => r.offer, 5).map((x) => ({
+  const offersRank = topNCounts(filtered, (r) => {
+    const offer = r.offer?.trim();
+    const productType = r.productType?.trim();
+    if (!offer && !productType) return null;
+    return `${offer ?? "Offre non renseignée"} • ${productType ?? "Produit non renseigné"}`;
+  }, 6).map((x) => ({
     label: x.key,
     value: x.count,
   }));
@@ -119,6 +124,7 @@ export default async function InterventionsPage({
           <div className="text-lg font-extrabold text-tt-navy">
             Répartition par Famille d&apos;Intervention
           </div>
+          <div className="mt-1 text-sm text-gray-500">Top 5 product_type</div>
           <div className="mt-4 grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <DonutChart
               centerLabel="TOTAL VOLUME"
@@ -152,7 +158,10 @@ export default async function InterventionsPage({
             <HorizontalBarChart data={offersRank} />
           </div>
           <div className="mt-4 rounded-2xl bg-sky-50 p-4 text-sm text-sky-950 ring-1 ring-sky-100">
-            Insight Opérationnel: volume Fibre (FTTH) dans le top des offres filtrées.
+            Insight Opérationnel:{" "}
+            {offersRank[0]
+              ? `${offersRank[0].label} (${formatIntFr(offersRank[0].value)} incidents)`
+              : "Aucune donnée disponible."}
           </div>
         </Card>
       </div>
