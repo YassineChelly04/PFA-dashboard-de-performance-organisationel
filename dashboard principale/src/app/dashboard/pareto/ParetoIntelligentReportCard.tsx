@@ -102,7 +102,7 @@ async function downloadReportPdf({
 
   if (report.metrics) {
     const totals = report.metrics.totals;
-    const executiveTable = autoTable(doc, {
+    autoTable(doc, {
       startY: cursorY,
       margin: { left: margin, right: margin },
       head: [["Indicateur", "Valeur"]],
@@ -122,7 +122,7 @@ async function downloadReportPdf({
       styles: { fontSize: 10, cellPadding: 6 },
       theme: "striped",
     });
-    cursorY = executiveTable.finalY + 20;
+    cursorY = ((doc as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? cursorY) + 20;
   }
 
   if (report.metrics?.topResolutionCodes?.length) {
@@ -130,7 +130,7 @@ async function downloadReportPdf({
     doc.setFontSize(11);
     doc.text("Top causes prioritaires (Pareto)", margin, cursorY);
     cursorY += 10;
-    const causesTable = autoTable(doc, {
+    autoTable(doc, {
       startY: cursorY,
       margin: { left: margin, right: margin },
       head: [["Code", "Volume", "Frequence", "Cumul", "Delai moyen"]],
@@ -145,7 +145,7 @@ async function downloadReportPdf({
       styles: { fontSize: 10, cellPadding: 6 },
       theme: "striped",
     });
-    cursorY = causesTable.finalY + 20;
+    cursorY = ((doc as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY ?? cursorY) + 20;
   }
 
   doc.setFont("helvetica", "bold");
