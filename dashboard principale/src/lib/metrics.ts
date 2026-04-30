@@ -3,6 +3,7 @@ import { isClosed } from "./normalize";
 
 export type CountRow = { key: string; count: number };
 export type ParetoRow = CountRow & { cumPct: number };
+export const URGENT_TICKET_THRESHOLD_HOURS = 72;
 
 export function mean(values: number[]): number | null {
   if (!values.length) return null;
@@ -144,15 +145,12 @@ export function statusSplit(rows: IncidentRow[]): {
   const treated = rows.filter((r) => isClosed(r.status)).length;
   const inProgress = rows.length - treated;
 
-  const durations = rows
-    .map((r) => r.durationHours)
-    .filter((v): v is number => v !== null && Number.isFinite(v));
-
-  const threshold = quantile(durations, 0.95);
-  const urgent =
-    threshold === null
-      ? 0
-      : rows.filter((r) => r.durationHours !== null && r.durationHours >= threshold).length;
+  const urgent = rows.filter(
+    (r) =>
+      r.durationHours !== null &&
+      Number.isFinite(r.durationHours) &&
+      r.durationHours >= URGENT_TICKET_THRESHOLD_HOURS,
+  ).length;
 
   return { treated, inProgress, urgent };
 }

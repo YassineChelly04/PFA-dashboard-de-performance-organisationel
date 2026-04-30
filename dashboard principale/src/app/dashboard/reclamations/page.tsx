@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { Database, Network, Wifi, WifiOff } from "lucide-react";
 
 import { DashboardDataUnavailableState } from "@/components/DashboardDataUnavailableState";
 import { PageHeader } from "@/components/PageHeader";
 import { ParetoMiniChart } from "@/components/charts/ParetoMiniChart";
 import { MonthSelect, OfferSelect, RegionSelect } from "@/components/QueryControls";
 import { Card } from "@/components/ui/Card";
-import { offerClusterCounts } from "@/lib/buckets";
+import { offerClusterCounts, type OfferCluster } from "@/lib/buckets";
 import { distinctMonths, distinctOffers, distinctRegions } from "@/lib/catalog";
 import { loadDashboardIncidentsSafely } from "@/lib/dashboardData";
 import { applyFilters, parseDashboardFilters } from "@/lib/filters";
@@ -13,6 +14,13 @@ import { formatHours1, formatIntFr, formatPct1 } from "@/lib/format";
 import { mean, paretoFromCounts, topNCounts } from "@/lib/metrics";
 
 export const dynamic = "force-dynamic";
+
+function clusterIcon(cluster: OfferCluster) {
+  if (cluster === "ADSL") return Wifi;
+  if (cluster === "VDSL") return Network;
+  if (cluster === "FIBRE") return WifiOff;
+  return Database;
+}
 
 function readSingleParam(value: string | string[] | undefined): string | null {
   if (Array.isArray(value)) return value[0] ?? null;
@@ -153,7 +161,12 @@ export default async function ReclamationsPage({
                   {c.cluster}{" "}
                   <span className="text-gray-500">({formatIntFr(c.count)})</span>
                 </div>
-                <div className="h-9 w-9 rounded-2xl bg-gray-100 ring-1 ring-gray-200" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-gray-100 ring-1 ring-gray-200">
+                  {(() => {
+                    const Icon = clusterIcon(c.cluster);
+                    return <Icon className="h-4 w-4 text-tt-navy" />;
+                  })()}
+                </div>
               </div>
 
               <div className="mt-4 space-y-2 text-sm">
