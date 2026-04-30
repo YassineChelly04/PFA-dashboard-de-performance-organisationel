@@ -67,6 +67,129 @@ function parseReportSections(text: string): ReportSection[] {
   return sections;
 }
 
+async function downloadReportPdf({
+  report,
+  sections,
+  scope,
+}: {
+  report: ReportApiResponse;
+  sections: ReportSection[];
+  scope: Scope;
+}) {
+  const [{ jsPDF }, { default: autoTable }] = await Promise.all([import("jspdf"), import("jspdf-autotable")]);
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 42;
+  const maxTextWidth = pageWidth - margin * 2;
+
+  doc.setFillColor(16, 77, 160);
+  doc.rect(0, 0, pageWidth, 88, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("Rapport Pareto — Reclamations & Resolutions", margin, 36);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(`Portee: ${scopeLabel(scope)}    Emis le: ${new Date(report.generatedAt).toLocaleString("fr-FR")}`, margin, 56);
+  doc.text("Direction Qualite & Performance — Tunisie Telecom", margin, 72);
+
+  let cursorY = 110;
+  doc.setTextColor(34, 34, 34);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("Indicateurs executifs", margin, cursorY);
+  cursorY += 10;
+
+  if (report.metrics) {
+    const totals = report.metrics.totals;
+    const executiveTable = autoTable(doc, {
+      startY: cursorY,
+      margin: { left: margin, right: margin },
+      head: [["Indicateur", "Valeur"]],
+      body: [
+        ["Total reclamations", formatIntFr(totals.totalReclamations)],
+        [
+          "Variation volume",
+          totals.variationVolumePct === null ? "n/a" : formatSignedPct1(totals.variationVolumePct),
+        ],
+        ["Taux de traitement", formatPct1(totals.tauxTraitementPct)],
+        ["Tickets traites", formatIntFr(totals.traitees)],
+        ["Delai moyen", `${formatHours1(totals.delaiMoyenHeures)}h`],
+        ["Variation delai", totals.variationDelaiPct === null ? "n/a" : formatSignedPct1(totals.variationDelaiPct)],
+        ["Alertes urgentes", formatIntFr(totals.urgentes)],
+      ],
+      headStyles: { fillColor: [16, 77, 160] },
+      styles: { fontSize: 10, cellPadding: 6 },
+      theme: "striped",
+    });
+    cursorY = executiveTable.finalY + 20;
+  }
+
+  if (report.metrics?.topResolutionCodes?.length) {
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("Top causes prioritaires (Pareto)", margin, cursorY);
+    cursorY += 10;
+    const causesTable = autoTable(doc, {
+      startY: cursorY,
+      margin: { left: margin, right: margin },
+      head: [["Code", "Volume", "Frequence", "Cumul", "Delai moyen"]],
+      body: report.metrics.topResolutionCodes.slice(0, 8).map((row) => [
+        row.code,
+        formatIntFr(row.volume),
+        formatPct1(row.frequencePct),
+        formatPct1(row.cumulPct),
+        `${formatHours1(row.delaiMoyenHeures)}h`,
+      ]),
+      headStyles: { fillColor: [16, 77, 160] },
+      styles: { fontSize: 10, cellPadding: 6 },
+      theme: "striped",
+    });
+    cursorY = causesTable.finalY + 20;
+  }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text("Analyse narrative experte", margin, cursorY);
+  cursorY += 16;
+
+  const writeLines = (lines: string[], opts?: { bullet?: boolean }) => {
+    for (const line of lines) {
+      const prefix = opts?.bullet ? "- " : "";
+      const wrapped = doc.splitTextToSize(`${prefix}${line}`, maxTextWidth) as string[];
+      if (cursorY + wrapped.length * 13 > doc.internal.pageSize.getHeight() - margin) {
+        doc.addPage();
+        cursorY = margin;
+      }
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10.5);
+      doc.text(wrapped, margin, cursorY);
+      cursorY += wrapped.length * 13 + 2;
+    }
+  };
+
+  if (sections.length) {
+    for (const section of sections) {
+      if (cursorY + 20 > doc.internal.pageSize.getHeight() - margin) {
+        doc.addPage();
+        cursorY = margin;
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text(section.title, margin, cursorY);
+      cursorY += 14;
+      writeLines(section.paragraphs);
+      writeLines(section.bullets, { bullet: true });
+      cursorY += 6;
+    }
+  } else {
+    writeLines([report.reportText]);
+  }
+
+  const dateStamp = new Date(report.generatedAt).toISOString().slice(0, 10);
+  doc.save(`rapport-pareto-${scope}-${dateStamp}.pdf`);
+}
+
 export function ParetoIntelligentReportCard({ filters }: { filters: DashboardFilters }) {
   const [scope, setScope] = useState<Scope>("mensuel");
   const [loading, setLoading] = useState(false);
@@ -107,6 +230,7 @@ export function ParetoIntelligentReportCard({ filters }: { filters: DashboardFil
       reportText: payload.reportText,
       generatedAt: payload.generatedAt,
       model: payload.model ?? null,
+      metrics: payload.metrics,
     });
     setLoading(false);
   };
@@ -117,8 +241,17 @@ export function ParetoIntelligentReportCard({ filters }: { filters: DashboardFil
     setCopied(true);
   };
 
-  const printReport = () => {
-    window.print();
+  const printReport = async () => {
+    if (!report) return;
+    try {
+      await downloadReportPdf({ report, sections, scope });
+    } catch (pdfError) {
+      const message =
+        pdfError instanceof Error
+          ? pdfError.message
+          : "Impossible de générer le PDF. Vérifiez la connexion puis réessayez.";
+      setError(message);
+    }
   };
 
   const sections = report ? parseReportSections(report.reportText) : [];
@@ -170,7 +303,7 @@ export function ParetoIntelligentReportCard({ filters }: { filters: DashboardFil
             <div className="flex flex-wrap gap-2">
               <Button className="rounded-2xl" type="button" variant="secondary" onClick={printReport}>
                 <Printer className="h-4 w-4" />
-                Imprimer / PDF
+                Exporter en PDF
               </Button>
               <Button className="rounded-2xl" type="button" variant="secondary" onClick={copyReport}>
                 <Copy className="h-4 w-4" />
