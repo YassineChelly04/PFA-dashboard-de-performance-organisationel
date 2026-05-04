@@ -1,0 +1,21 @@
+\babel@toc {french}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Diagramme de cas d'utilisation --- Système SPPOI}}{17}{figure.caption.12}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Diagramme de classes --- Entités du système SPPOI}}{18}{figure.caption.13}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Diagramme d'activité --- du signalement à la clôture du ticket}}{18}{figure.caption.14}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Interface Fournisseur FSI --- Ouverture et suivi de ticket}}{21}{figure.caption.18}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Interface Agent TT --- Consultation et clôture des interventions}}{21}{figure.caption.19}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Dashboard Principale --- Capture d'un tableau de bord opérationnel}}{22}{figure.caption.20}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Architecture applicative globale du système SPPOI}}{23}{figure.caption.16}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Vue Globale --- Dashboard Principale --- Tableau de bord exécutif Tunisie Telecom}}{27}{figure.caption.24}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Vue Offres \& Produits --- Catalogue et répartition des offres}}{28}{figure.caption.25}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Vue Performance --- Analyse multidimensionnelle des délais de résolution}}{28}{figure.caption.26}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Vue Régions --- Analyse territoriale (volume et délai moyen par région)}}{29}{figure.caption.27}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Vue Résolutions TT --- Pareto des codes de résolution et tableau de détail}}{29}{figure.caption.28}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Vue Pareto --- Analyse Pareto intelligente et module de génération de rapport IA}}{30}{figure.caption.29}%
+\addvspace {10\p@ }
+\contentsfinish 
+\contentsfinish 

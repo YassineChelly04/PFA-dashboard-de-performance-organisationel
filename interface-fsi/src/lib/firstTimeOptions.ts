@@ -1,0 +1,28 @@
+export const OFFER_OPTIONS = [
+  "FIX-Fixe post paye",
+  "FIX-IllimiFix",
+  "FIX-Liberty pro",
+  "Fixi 10 Postpayee",
+  "Fixi Prepayee",
+  "Forfait Plafonnee",
+  "Forfix 10 prep",
+  "ForFix prp",
+  "Gros ADSL postpayee",
+  "IllimiFix",
+  "Millenium Prepaye",
+  "Offre de Gros ADSL Hybride",
+  "Offre de Gros VDSL Hybride",
+  "Offre de Gros VDSL Postpaye",
+  "Post Paye Corporate",
+  "Prepaye",
+  "ProFix Hybride",
+  "ProFix Postpayee",
+  "ProFixPostpaye Provisoire",
+  "Rapido PRO Hyb GU FSI",
+  "Security PRO",
+  "SMART ADSL GU TT",
+  "SMART VDSL GU FSI",
+  "SMART VDSL PRO Prepayee GU FSI",
+] as const;
+
+export const FSI_ADSL_OPTIONS = ["Hexabyte", "Topnet", "Globalnet"] as const;

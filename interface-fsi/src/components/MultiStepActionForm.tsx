@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { FSI_ADSL_OPTIONS, OFFER_OPTIONS } from "@/lib/firstTimeOptions";
 
 interface StepChoice {
   value: string;
@@ -26,10 +27,19 @@ interface FormStep {
 interface MultiStepActionFormProps {
   dlNumber: string;
   actionAlreadyFilled: boolean;
-  existingAction?: string;
   downtimeStart?: string;
-  onActionSaved: () => void;
+  onActionSaved: (payload: { status: "Ouvert" | "Traitement" | "Clôturé" }) => void;
   lineFound: boolean;
+  isFirstTime: boolean;
+}
+
+interface FirstTimeDetails {
+  downtimeStart: string;
+  region: string;
+  offre: string;
+  briefDescription: string;
+  debitADSL: string;
+  fsiADSL: string;
 }
 
 const issueLabels: Record<string, StepChoice[]> = {
@@ -110,6 +120,33 @@ const issueLabels: Record<string, StepChoice[]> = {
     },
   ],
 };
+
+const REGION_OPTIONS = [
+  "ARIANA",
+  "BEJA",
+  "BENAROUS",
+  "BIZERTE",
+  "GABES",
+  "GAFSA",
+  "JENDOUBA",
+  "KAIROUAN",
+  "KASSERINE",
+  "KEBILI",
+  "KEF",
+  "MAHDIA",
+  "MANNOUBA",
+  "MEDENINE",
+  "MONASTIR",
+  "NABEUL",
+  "SFAX",
+  "SIDIBOUZID",
+  "SILIANA",
+  "SOUSSE",
+  "TATAOUINE",
+  "TOZEUR",
+  "TUNIS",
+  "ZAGHOUAN",
+] as const;
 
 const steps: FormStep[] = [
   {
@@ -375,22 +412,128 @@ function ChoiceIcon({ kind }: { kind?: StepChoice["icon"] }) {
   }
 }
 
-export default function MultiStepActionForm({ 
-  dlNumber, 
-  actionAlreadyFilled, 
-  existingAction,
+function evaluateTestOutcome(answers: Record<string, string>): "pass" | "fail" {
+  if (answers.etat_modem === "Non connecté") {
+    return "fail";
+  }
+
+  if (answers.type_probleme === "déconnexion") {
+    if (answers.perte_de_synchro === "Oui" || answers.deconnexion_sans_filtre === "Oui") {
+      return "fail";
+    }
+    return "pass";
+  }
+
+  if (answers.type_probleme === "pas_de_synchro") {
+    if (
+      answers.tonalite === "Non" ||
+      answers.ligne_suspendue === "Oui" ||
+      answers.modem_allume === "Non" ||
+      answers.synchro_sans_filtre === "Non"
+    ) {
+      return "fail";
+    }
+    return "pass";
+  }
+
+  if (answers.type_probleme === "debit_lent") {
+    const checks = [
+      answers.test_ftp,
+      answers.verif_pc,
+      answers.verif_config_modem,
+      answers.reboot_modem,
+      answers.ping_modem,
+      answers.connexion_pc_modem,
+      answers.adresse_ip_auto,
+    ];
+    return checks.every((value) => value === "Oui") ? "pass" : "fail";
+  }
+
+  return "fail";
+}
+
+export default function MultiStepActionForm({
+  dlNumber,
+  actionAlreadyFilled,
   downtimeStart,
   onActionSaved,
-  lineFound 
+  lineFound,
+  isFirstTime,
 }: MultiStepActionFormProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [stepPath, setStepPath] = useState<string[]>(["step-1", "step-2"]);
   const [isSaving, setIsSaving] = useState(false);
   const [forceNewAction, setForceNewAction] = useState(false);
+  const [detailsConfirmed, setDetailsConfirmed] = useState(false);
+  const [debitOptions, setDebitOptions] = useState<string[]>([]);
+  const [isLoadingDebitOptions, setIsLoadingDebitOptions] = useState(false);
+  const [firstTimeDetails, setFirstTimeDetails] = useState<FirstTimeDetails>({
+    downtimeStart: "",
+    region: "",
+    offre: "",
+    briefDescription: "",
+    debitADSL: "",
+    fsiADSL: "",
+  });
 
   const currentStep = steps.find((step) => step.id === stepPath[currentStepIndex]);
   const issueChoices = currentStep?.id === "step-issue" ? issueLabels[answers.type_probleme] ?? [] : [];
+
+  useEffect(() => {
+    if (!isFirstTime) {
+      setDetailsConfirmed(false);
+      return;
+    }
+    setDetailsConfirmed(false);
+    setCurrentStepIndex(0);
+    setAnswers({});
+    setStepPath(["step-1", "step-2"]);
+  }, [isFirstTime, dlNumber]);
+
+  useEffect(() => {
+    let active = true;
+    if (!isFirstTime) {
+      setDebitOptions([]);
+      setIsLoadingDebitOptions(false);
+      return;
+    }
+
+    const loadDebitOptions = async () => {
+      setIsLoadingDebitOptions(true);
+      try {
+        const response = await fetch("/api/ligne/options", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("Failed to load DebitADSL options");
+        }
+        const result = await response.json();
+        const options = Array.isArray(result?.debitADSL)
+          ? result.debitADSL
+              .map((value: unknown) => String(value ?? "").trim())
+              .filter((value: string) => Boolean(value))
+          : [];
+
+        if (active) {
+          setDebitOptions(options);
+        }
+      } catch (error) {
+        console.error("Unable to load DebitADSL options:", error);
+        if (active) {
+          setDebitOptions([]);
+        }
+      } finally {
+        if (active) {
+          setIsLoadingDebitOptions(false);
+        }
+      }
+    };
+
+    void loadDebitOptions();
+
+    return () => {
+      active = false;
+    };
+  }, [isFirstTime]);
 
   useEffect(() => {
     let basePath = ["step-1", "step-2"];
@@ -462,12 +605,16 @@ export default function MultiStepActionForm({
       setIsSaving(true);
       try {
         const actionOutput = formatActionOutput();
+        const testOutcome = evaluateTestOutcome(answers);
         const response = await fetch('/api/ligne', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             dlNumber: dlNumber,
             actionFSI: actionOutput,
+            testOutcome,
+            isFirstTime,
+            firstTimeDetails: isFirstTime ? firstTimeDetails : undefined,
           }),
         });
 
@@ -476,11 +623,23 @@ export default function MultiStepActionForm({
           throw new Error(error.error || 'Failed to save');
         }
 
-        toast.success("Action enregistrée avec succès");
-        onActionSaved();
+        const result = await response.json();
+        const finalStatus = (result.status ?? "Traitement") as
+          | "Ouvert"
+          | "Traitement"
+          | "Clôturé";
+        if (finalStatus === "Clôturé") {
+          toast.success("Tests validés: ticket clôturé.");
+        } else if (testOutcome === "pass") {
+          toast.success("Tests validés: ticket maintenu en traitement (intervention non réalisée).");
+        } else {
+          toast.success("Tests non validés: ticket transmis à Interface Agent TT.");
+        }
+        onActionSaved({ status: finalStatus });
       } catch (error) {
         console.error('Save error:', error);
-        toast.error("Erreur lors de l'enregistrement");
+        const message = error instanceof Error ? error.message : "Erreur lors de l'enregistrement";
+        toast.error(message);
       } finally {
         setIsSaving(false);
       }
@@ -525,6 +684,144 @@ export default function MultiStepActionForm({
           <p className="text-[13px] text-[#9ca3af] max-w-[280px]">
             Entrez un numéro DLigne (ex: DL-007716) pour commencer le diagnostic.
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  const firstTimeDetailsComplete = Boolean(
+    firstTimeDetails.downtimeStart &&
+      firstTimeDetails.region &&
+      firstTimeDetails.offre.trim() &&
+      firstTimeDetails.briefDescription.trim() &&
+      firstTimeDetails.debitADSL.trim() &&
+      firstTimeDetails.fsiADSL.trim(),
+  );
+
+  if (isFirstTime && !detailsConfirmed) {
+    return (
+      <div className="w-full max-w-[560px] mx-auto font-[family-name:var(--font-manrope)]">
+        <div className="rounded-2xl border border-[#e5e7eb] bg-[#f9fafb] p-4 sm:p-5">
+          <h3 className="text-[16px] font-semibold text-[#1f2937] font-[family-name:var(--font-montserrat)]">
+            Nouveau DLigne: Ajouter les détails
+          </h3>
+          <p className="mt-1 text-[13px] text-[#6b7280]">
+            Référence Extranet et Ref HPSM seront générées automatiquement à la soumission.
+          </p>
+
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-[12px] font-medium text-[#374151]">DLigne</label>
+              <input
+                value={dlNumber}
+                readOnly
+                className="w-full rounded-xl border border-[#d1d5db] bg-[#f3f4f6] px-3 py-2 text-[14px] text-[#374151]"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-[#374151]">Downtime</label>
+              <input
+                type="date"
+                value={firstTimeDetails.downtimeStart}
+                onChange={(e) =>
+                  setFirstTimeDetails((prev) => ({ ...prev, downtimeStart: e.target.value }))
+                }
+                className="w-full rounded-xl border border-[#d1d5db] bg-white px-3 py-2 text-[14px] text-[#1f2937] outline-none focus:border-[#1e3a6e]"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-[#374151]">Region</label>
+              <select
+                value={firstTimeDetails.region}
+                onChange={(e) =>
+                  setFirstTimeDetails((prev) => ({ ...prev, region: e.target.value }))
+                }
+                className="w-full rounded-xl border border-[#d1d5db] bg-white px-3 py-2 text-[14px] text-[#1f2937] outline-none focus:border-[#1e3a6e]"
+              >
+                <option value="">Sélectionner une région</option>
+                {REGION_OPTIONS.map((region) => (
+                  <option key={region} value={region}>
+                    {region}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-[#374151]">Offre</label>
+              <select
+                value={firstTimeDetails.offre}
+                onChange={(e) => setFirstTimeDetails((prev) => ({ ...prev, offre: e.target.value }))}
+                className="w-full rounded-xl border border-[#d1d5db] bg-white px-3 py-2 text-[14px] text-[#1f2937] outline-none focus:border-[#1e3a6e]"
+              >
+                <option value="">Sélectionner une offre</option>
+                {OFFER_OPTIONS.map((offre) => (
+                  <option key={offre} value={offre}>
+                    {offre}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-[12px] font-medium text-[#374151]">DebitADSL</label>
+              <select
+                value={firstTimeDetails.debitADSL}
+                onChange={(e) =>
+                  setFirstTimeDetails((prev) => ({ ...prev, debitADSL: e.target.value }))
+                }
+                className="w-full rounded-xl border border-[#d1d5db] bg-white px-3 py-2 text-[14px] text-[#1f2937] outline-none focus:border-[#1e3a6e]"
+                disabled={isLoadingDebitOptions}
+              >
+                <option value="">
+                  {isLoadingDebitOptions ? "Chargement des débits..." : "Sélectionner un DebitADSL"}
+                </option>
+                {debitOptions.map((debit) => (
+                  <option key={debit} value={debit}>
+                    {debit}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-[12px] font-medium text-[#374151]">FSIADSL</label>
+              <select
+                value={firstTimeDetails.fsiADSL}
+                onChange={(e) => setFirstTimeDetails((prev) => ({ ...prev, fsiADSL: e.target.value }))}
+                className="w-full rounded-xl border border-[#d1d5db] bg-white px-3 py-2 text-[14px] text-[#1f2937] outline-none focus:border-[#1e3a6e]"
+              >
+                <option value="">Sélectionner un FSI</option>
+                {FSI_ADSL_OPTIONS.map((fsi) => (
+                  <option key={fsi} value={fsi}>
+                    {fsi}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-[12px] font-medium text-[#374151]">Brief Description</label>
+              <textarea
+                value={firstTimeDetails.briefDescription}
+                onChange={(e) =>
+                  setFirstTimeDetails((prev) => ({ ...prev, briefDescription: e.target.value }))
+                }
+                className="min-h-[90px] w-full rounded-xl border border-[#d1d5db] bg-white px-3 py-2 text-[14px] text-[#1f2937] outline-none focus:border-[#1e3a6e]"
+              />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setDetailsConfirmed(true)}
+            disabled={!firstTimeDetailsComplete}
+            className="mt-4 h-[42px] w-full rounded-lg bg-[#1e3a6e] px-5 text-[14px] font-semibold text-white transition-all disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Continuer vers Execute Tests
+          </button>
         </div>
       </div>
     );

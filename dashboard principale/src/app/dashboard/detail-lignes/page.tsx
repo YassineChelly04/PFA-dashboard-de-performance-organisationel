@@ -70,6 +70,7 @@ export default async function DetailLignesPage({
           <table className="min-w-[1200px] w-full border-separate border-spacing-0">
             <thead>
               <tr className="text-left text-[11px] font-extrabold tracking-wider text-gray-500">
+                <th className="border-b border-gray-200 px-3 py-3">DL</th>
                 <th className="border-b border-gray-200 px-3 py-3">OUVERTURE</th>
                 <th className="border-b border-gray-200 px-3 py-3">STATUT</th>
                 <th className="border-b border-gray-200 px-3 py-3">RÉGION</th>
@@ -82,6 +83,9 @@ export default async function DetailLignesPage({
             <tbody>
               {rows.map((r, idx) => (
                 <tr key={`${r.openAt.toISOString()}-${idx}`} className="text-sm">
+                  <td className="border-b border-gray-100 px-3 py-3 font-semibold text-gray-900">
+                    {r.dLigne ?? "—"}
+                  </td>
                   <td className="border-b border-gray-100 px-3 py-3 text-gray-800">
                     {dateTimeFormatter.format(r.openAt)}
                   </td>

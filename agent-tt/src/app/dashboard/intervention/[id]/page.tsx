@@ -27,23 +27,51 @@ export default async function Page({ params }: PageProps) {
   }
 
   // Get possible resolution codes and product types from existing data
-  const resolutionCodes = await prisma.intervention.findMany({
-    where: { resolutionCode: { not: null } },
-    select: { resolutionCode: true },
-    distinct: ['resolutionCode'],
-  })
+  const [interventionResolutionCodes, clientResolutionCodes, interventionProductTypes, clientProductTypes] =
+    await Promise.all([
+      prisma.intervention.findMany({
+        where: { resolutionCode: { not: null } },
+        select: { resolutionCode: true },
+        distinct: ['resolutionCode'],
+      }),
+      prisma.client.findMany({
+        where: { resolutionCode: { not: null } },
+        select: { resolutionCode: true },
+        distinct: ['resolutionCode'],
+      }),
+      prisma.intervention.findMany({
+        where: { productType: { not: null } },
+        select: { productType: true },
+        distinct: ['productType'],
+      }),
+      prisma.client.findMany({
+        where: { productType: { not: null } },
+        select: { productType: true },
+        distinct: ['productType'],
+      }),
+    ])
 
-  const productTypes = await prisma.intervention.findMany({
-    where: { productType: { not: null } },
-    select: { productType: true },
-    distinct: ['productType'],
-  })
+  const resolutionCodes = [
+    ...new Set(
+      [...interventionResolutionCodes, ...clientResolutionCodes]
+        .map((row) => row.resolutionCode)
+        .filter((value): value is string => Boolean(value))
+    ),
+  ]
+
+  const productTypes = [
+    ...new Set(
+      [...interventionProductTypes, ...clientProductTypes]
+        .map((row) => row.productType)
+        .filter((value): value is string => Boolean(value))
+    ),
+  ]
 
   return (
     <InterventionPage 
       client={client}
-      resolutionCodes={resolutionCodes.map(r => r.resolutionCode!).filter(Boolean)}
-      productTypes={productTypes.map(p => p.productType!).filter(Boolean)}
+      resolutionCodes={resolutionCodes}
+      productTypes={productTypes}
     />
   )
 }

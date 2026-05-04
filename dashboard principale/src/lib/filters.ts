@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import type { DashboardFilters, IncidentRow } from "./model";
-import { normalizeText } from "./text";
+import { normalizeKey, normalizeText } from "./text";
 
 const QuerySchema = z.object({
   period: z.enum(["30d", "90d", "365d", "all"]).default("30d"),
@@ -11,6 +11,7 @@ const QuerySchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}$/)
     .optional(),
+  q: z.string().optional(),
 });
 
 export function parseDashboardFilters(
@@ -20,12 +21,14 @@ export function parseDashboardFilters(
   const regionRaw = first(searchParams.region);
   const offerRaw = first(searchParams.offer);
   const monthRaw = first(searchParams.month);
+  const queryRaw = first(searchParams.q);
 
   const parsed = QuerySchema.parse({
     period: periodRaw ?? undefined,
     region: regionRaw ?? undefined,
     offer: offerRaw ?? undefined,
     month: monthRaw ?? undefined,
+    q: queryRaw ?? undefined,
   });
 
   return {
@@ -33,10 +36,12 @@ export function parseDashboardFilters(
     region: normalizeText(parsed.region),
     offer: normalizeText(parsed.offer),
     month: normalizeText(parsed.month),
+    q: normalizeText(parsed.q),
   };
 }
 
 export function applyFilters(rows: IncidentRow[], filters: DashboardFilters): IncidentRow[] {
+  const query = normalizeKey(filters.q);
   const end = new Date();
   const start =
     filters.period === "all"
@@ -62,6 +67,23 @@ export function applyFilters(rows: IncidentRow[], filters: DashboardFilters): In
       }
     }
     if (filters.offer && normalizeText(filters.offer) !== r.offer) return false;
+    if (query) {
+      const haystacks = [
+        r.dLigne,
+        r.region,
+        r.offer,
+        r.status,
+        r.resolutionCode,
+        r.productType,
+        r.briefDescription,
+      ]
+        .map((value) => normalizeKey(value))
+        .filter((value): value is string => Boolean(value));
+
+      if (!haystacks.some((value) => value.includes(query))) {
+        return false;
+      }
+    }
     return true;
   });
 }

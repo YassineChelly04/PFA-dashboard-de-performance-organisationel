@@ -1,30 +1,74 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #fafbfc;
   --foreground: #171717;
-  --font-montserrat: 'Montserrat', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --tt-blue: #1e2f97;
+  --tt-navy: #00157c;
+  --tt-accent: #5f2ee5;
+  --tt-orange: #ff6b00;
+  --tt-light-blue: #e8f4fc;
+  --tt-gray: #fafbfc;
+  --font-montserrat: "Montserrat", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-tt-blue: var(--tt-blue);
+  --color-tt-navy: var(--tt-navy);
+  --color-tt-accent: var(--tt-accent);
+  --color-tt-orange: var(--tt-orange);
+  --color-tt-light-blue: var(--tt-light-blue);
+  --color-tt-gray: var(--tt-gray);
   --font-sans: var(--font-manrope);
   --font-mono: var(--font-montserrat);
-  --font-display: var(--font-montserrat);
+  --font-display: var(--font-plus-jakarta-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-manrope), var(--font-montserrat), sans-serif;
+  font-family: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-plus-jakarta-sans), var(--font-manrope), ui-sans-serif, system-ui,
+    sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e2f97;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00157c;
 }
 
 .route-transition {

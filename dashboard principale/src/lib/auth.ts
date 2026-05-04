@@ -2,6 +2,8 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
 import { Session } from "next-auth";
+import { AUTH_SECRET } from "@/lib/authSecret";
+import { authCookieNames, authCookieOptions, authHttpOnlyCookieOptions } from "@/lib/authCookies";
 
 // Mock admin credentials
 const MOCK_ADMIN = {
@@ -9,9 +11,6 @@ const MOCK_ADMIN = {
   password: "admin",
   name: "Administrateur",
 };
-
-const useSecureCookies = process.env.NODE_ENV === "production";
-const cookiePrefix = useSecureCookies ? "__Secure-dashboard-principale" : "dashboard-principale";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -50,30 +49,16 @@ export const authOptions: NextAuthOptions = {
   },
   cookies: {
     sessionToken: {
-      name: `${cookiePrefix}.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: useSecureCookies,
-      },
+      name: authCookieNames.sessionToken,
+      options: authHttpOnlyCookieOptions,
     },
     callbackUrl: {
-      name: `${cookiePrefix}.callback-url`,
-      options: {
-        sameSite: "lax",
-        path: "/",
-        secure: useSecureCookies,
-      },
+      name: authCookieNames.callbackUrl,
+      options: authCookieOptions,
     },
     csrfToken: {
-      name: `${cookiePrefix}.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: useSecureCookies,
-      },
+      name: authCookieNames.csrfToken,
+      options: authHttpOnlyCookieOptions,
     },
   },
   callbacks: {
@@ -90,6 +75,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-change-in-production",
+  secret: AUTH_SECRET,
 };
 

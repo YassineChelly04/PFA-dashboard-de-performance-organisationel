@@ -1,4 +1,5 @@
 export type IncidentRow = {
+  dLigne: string | null;
   openAt: Date;
   closeAt: Date | null;
   status: string;
@@ -18,4 +19,5 @@ export type DashboardFilters = {
   region: string | null;
   offer: string | null;
   month: string | null; // "YYYY-MM" optional month lock (used on deep-dive pages)
+  q: string | null;
 };

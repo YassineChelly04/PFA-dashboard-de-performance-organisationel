@@ -1,38 +1,55 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #fafbfc;
   --foreground: #171717;
-  --tt-blue: #0066B3;
-  --tt-orange: #FF6B00;
-  --tt-light-blue: #E8F4FC;
-  --tt-gray: #F5F5F5;
+  --tt-blue: #1e2f97;
+  --tt-navy: #00157c;
+  --tt-accent: #5f2ee5;
+  --tt-orange: #ff6b00;
+  --tt-light-blue: #e8f4fc;
+  --tt-gray: #fafbfc;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-tt-blue: var(--tt-blue);
+  --color-tt-navy: var(--tt-navy);
+  --color-tt-accent: var(--tt-accent);
   --color-tt-orange: var(--tt-orange);
   --color-tt-light-blue: var(--tt-light-blue);
   --color-tt-gray: var(--tt-gray);
   --font-sans: var(--font-manrope);
   --font-heading: var(--font-plus-jakarta-sans);
+  --font-display: var(--font-plus-jakarta-sans);
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-manrope), Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Arial, sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 label,
 button,
 input,
 select,
 textarea {
-  font-family: var(--font-plus-jakarta-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-plus-jakarta-sans), var(--font-manrope), ui-sans-serif, system-ui,
+    sans-serif;
 }
 
 /* Custom scrollbar */
@@ -45,12 +62,12 @@ textarea {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0066B3;
+  background: #1e2f97;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #004a8c;
+  background: #00157c;
 }
 
 /* Multi-step form animation */

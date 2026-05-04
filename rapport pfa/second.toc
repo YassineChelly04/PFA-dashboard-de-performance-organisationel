@@ -1,0 +1,94 @@
+\babel@toc {french}{}\relax 
+\contentsline {chapter}{Résumé}{1}{chapter*.1}%
+\contentsline {chapter}{Remerciements}{2}{chapter*.2}%
+\contentsline {chapter}{Liste des Abréviations}{3}{chapter*.3}%
+\contentsline {chapter}{Table des matières}{3}{section*.4}%
+\contentsline {chapter}{Liste des figures}{4}{section*.5}%
+\contentsline {chapter}{Liste des tableaux}{5}{section*.6}%
+\contentsline {chapter}{Introduction Générale}{6}{chapter*.7}%
+\contentsline {chapter}{\numberline {1}Présentation de l'Organisme d'Accueil et Cadre du Projet}{7}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Présentation de Tunisie Telecom}{7}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Historique et évolution}{7}{subsection.1.1.1}%
+\contentsline {subsection}{\numberline {1.1.2}Missions, vision et orientations stratégiques}{7}{subsection.1.1.2}%
+\contentsline {subsection}{\numberline {1.1.3}Structure organisationnelle}{7}{subsection.1.1.3}%
+\contentsline {subsection}{\numberline {1.1.4}Portefeuille de services}{7}{subsection.1.1.4}%
+\contentsline {subsection}{\numberline {1.1.5}Position concurrentielle sur le marché télécom tunisien}{8}{subsection.1.1.5}%
+\contentsline {section}{\numberline {1.2}Contexte et Diagnostic du Système Existant}{8}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Processus actuel de gestion des dérangements}{8}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Dysfonctionnements et limites du système existant}{8}{subsection.1.2.2}%
+\contentsline {section}{\numberline {1.3}Cahier des Charges}{9}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Besoins fonctionnels}{9}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Besoins non-fonctionnels}{9}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.3}Contraintes techniques et organisationnelles}{9}{subsection.1.3.3}%
+\contentsline {chapter}{\numberline {2}État de l'Art et Cadre Théorique}{10}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Systèmes d'Aide à la Décision et Pilotage de la Performance}{10}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Concepts fondamentaux des indicateurs clés de performance (KPI)}{10}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Tableaux de bord de performance (\textit {dashboard})}{10}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Analyse des écarts et alertes automatiques}{10}{subsection.2.1.3}%
+\contentsline {section}{\numberline {2.2}Méthode Pareto et Analyse des Dysfonctionnements}{11}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Principe 80/20 et diagramme de Pareto}{11}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Application dans les systèmes de gestion de réclamations}{11}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Pareto intelligent assisté par IA (LLM)}{11}{subsection.2.2.3}%
+\contentsline {section}{\numberline {2.3}Étude Comparative des Outils de Business Intelligence}{11}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Solutions existantes}{12}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Justification du développement sur mesure}{12}{subsection.2.3.2}%
+\contentsline {section}{\numberline {2.4}Technologies et Architecture Retenues}{12}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Next.js --- Framework de développement}{12}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Groq API et modèle Llama\,3.3\,70B}{12}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Recharts --- Bibliothèque de visualisation}{13}{subsection.2.4.3}%
+\contentsline {subsection}{\numberline {2.4.4}Vercel --- Déploiement cloud}{13}{subsection.2.4.4}%
+\contentsline {chapter}{\numberline {3}Analyse et Conception du Système}{14}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Modélisation des Besoins (UML)}{14}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Identification des acteurs}{14}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Diagramme de cas d'utilisation}{15}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}Diagramme de classes}{15}{subsection.3.1.3}%
+\contentsline {subsection}{\numberline {3.1.4}Diagrammes de séquence}{16}{subsection.3.1.4}%
+\contentsline {subsection}{\numberline {3.1.5}Diagramme d'activité}{17}{subsection.3.1.5}%
+\contentsline {section}{\numberline {3.2}Architecture Applicative Globale}{17}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Architecture en couches du système}{17}{subsection.3.2.1}%
+\contentsline {section}{\numberline {3.3}Conception des Indicateurs de Performance}{18}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Cartographie des KPIs retenus}{18}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Définition des seuils et alertes automatiques}{18}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}Conception de la Base de Données}{18}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Structure du fichier de données source (\texttt {all-data.xlsx})}{18}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Dictionnaire des données}{19}{subsection.3.4.2}%
+\contentsline {section}{\numberline {3.5}Conception des Interfaces Utilisateur (Maquettes)}{19}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Maquette de l'espace fournisseur FSI}{19}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Maquette de l'interface agent technicien TT}{20}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Maquette du dashboard de performance principale}{20}{subsection.3.5.3}%
+\contentsline {chapter}{\numberline {4}Réalisation et Implémentation}{22}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Environnement de Développement}{22}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Stack technique utilisé}{22}{subsection.4.1.1}%
+\contentsline {section}{\numberline {4.2}Analyse Exploratoire des Données (EDA)}{22}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Description et qualité du jeu de données}{22}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Distribution des délais de résolution}{23}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Analyse des volumes par région, offre et famille}{23}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Saisonnalité des incidents et corrélations}{23}{subsection.4.2.4}%
+\contentsline {section}{\numberline {4.3}Traitement des Données et Calcul des KPIs}{24}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Chargement et parsing du fichier source (SheetJS)}{24}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Calcul des indicateurs clés de performance}{24}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Logique de filtrage multicritère}{24}{subsection.4.3.3}%
+\contentsline {section}{\numberline {4.4}Implémentation du Dashboard Principal}{24}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Architecture des composants React}{24}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Vue Globale --- Tableau de bord exécutif}{24}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}Vue Interventions --- Analyse des familles d'intervention}{25}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.4}Vue Performance --- Analyse des délais}{26}{subsection.4.4.4}%
+\contentsline {subsection}{\numberline {4.4.5}Vue Régions --- Analyse territoriale}{26}{subsection.4.4.5}%
+\contentsline {subsection}{\numberline {4.4.6}Vue Résolutions TT --- Analyse qualité des actions}{27}{subsection.4.4.6}%
+\contentsline {subsection}{\numberline {4.4.7}Vue Pareto --- Analyse Pareto intelligente}{27}{subsection.4.4.7}%
+\contentsline {section}{\numberline {4.5}Implémentation du Module Pareto Intelligent (IA)}{28}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Architecture du module IA}{28}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Conception du prompt et calibrage du modèle}{28}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}Extrait du code source}{28}{subsection.4.5.3}%
+\contentsline {subsection}{\numberline {4.5.4}Exemple de rapport Pareto IA généré}{29}{subsection.4.5.4}%
+\contentsline {section}{\numberline {4.6}Implémentation des Interfaces FSI et Agent TT}{30}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Espace fournisseur FSI}{30}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Interface agent technicien TT}{30}{subsection.4.6.2}%
+\contentsline {chapter}{\numberline {5}Tests, Validation et Résultats}{31}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Présentation des Résultats Obtenus}{31}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Métriques de performance technique du système}{31}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Principaux enseignements tirés de l'analyse des données réelles}{31}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Retour d'expérience et limites identifiées}{32}{subsection.5.1.3}%
+\contentsline {chapter}{Conclusion Générale et Perspectives}{33}{chapter*.34}%
+\contentsline {chapter}{Bibliographie}{34}{chapter*.35}%
+\contentsfinish 

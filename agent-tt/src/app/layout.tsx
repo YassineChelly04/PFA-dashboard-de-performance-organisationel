@@ -37,7 +37,7 @@ export default function RootLayout({
       lang="fr"
       className={`${montserrat.variable} ${manrope.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-50 font-[family-name:var(--font-manrope)]">
+      <body className="min-h-full flex flex-col bg-tt-bg font-[family-name:var(--font-manrope)] text-gray-900">
         <Providers>{children}</Providers>
         <Analytics />
       </body>

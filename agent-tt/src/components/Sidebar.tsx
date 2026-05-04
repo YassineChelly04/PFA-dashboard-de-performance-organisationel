@@ -10,12 +10,14 @@ import {
   X,
   Home,
   History,
+  ListChecks,
   User,
   LogOut,
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Accueil', href: '/dashboard', icon: Home },
+  { name: 'Queue FSI', href: '/dashboard/queue', icon: ListChecks },
   { name: 'Historique', href: '/dashboard/historique', icon: History },
   { name: 'Profil', href: '/dashboard/profil', icon: User },
 ]

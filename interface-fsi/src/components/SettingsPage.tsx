@@ -143,7 +143,15 @@ export default function SettingsPage() {
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="bg-white border-b border-[#e5e7eb] flex flex-wrap items-center gap-3 px-4 py-3 pl-16 sm:px-6 sm:pl-20 lg:flex-nowrap lg:gap-4 lg:px-8 lg:pl-8 shrink-0">
-          <div className="relative order-2 w-full lg:order-1 lg:flex-1">
+          <div className="order-1 flex items-center gap-3">
+            <Image src="/logo-tt.png" alt="Tunisie Telecom" width={96} height={48} className="h-10 w-auto" />
+            <div className="hidden sm:block leading-tight">
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9ca3af]">Tunisie Telecom</div>
+              <div className="text-sm font-extrabold text-[#0a277a]">Paramètres</div>
+            </div>
+          </div>
+
+          <div className="relative order-2 w-full lg:order-2 lg:flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]" size={16} />
             <input
               type="search"
@@ -152,7 +160,7 @@ export default function SettingsPage() {
             />
           </div>
 
-          <div className="order-3 hidden items-center gap-2 md:flex lg:order-2">
+          <div className="order-3 hidden items-center gap-2 md:flex lg:order-3">
             <button className="grid h-11 w-11 place-items-center rounded-2xl border border-[#e5e7eb] bg-white text-[#4b5563] hover:bg-[#f9fafb] transition-colors">
               <Bell size={20} />
             </button>
@@ -164,7 +172,7 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          <div className="order-1 ml-auto flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2 lg:order-3 lg:ml-0">
+          <div className="order-4 ml-auto flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2 lg:ml-0">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[#e5e7eb] to-[#f3f4f6] ring-1 ring-black/5 flex items-center justify-center">
                 <User size={16} className="text-[#0891b2]" />

@@ -6,6 +6,7 @@ import "./globals.css";
 const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -35,27 +36,8 @@ export default function RootLayout({
       lang="fr"
       className={`${manrope.variable} ${plusJakartaSans.variable} ${montserrat.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-gray-50">
-        <Toaster 
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#0066B3',
-              color: '#fff',
-            },
-            success: {
-              style: {
-                background: '#10B981',
-              },
-            },
-            error: {
-              style: {
-                background: '#EF4444',
-              },
-            },
-          }}
-        />
+      <body className="min-h-full flex flex-col bg-tt-bg font-[family-name:var(--font-manrope)] text-gray-900">
+        <Toaster position="top-center" />
         {children}
       </body>
     </html>

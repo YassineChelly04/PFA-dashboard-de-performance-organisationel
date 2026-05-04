@@ -2,45 +2,23 @@ import { Prisma } from "@prisma/client";
 import * as XLSX from "xlsx";
 import * as fs from "fs";
 import * as path from "path";
-import { fileURLToPath } from "node:url";
 import { prisma } from "@/lib/prisma";
 
 type WorkbookRow = Record<string, unknown>;
 
-function findWorkbookPathFrom(baseDir: string) {
-  let current = path.resolve(baseDir);
-  while (true) {
-    const candidate = path.join(current, "database", "all-data.xlsx");
-    if (fs.existsSync(candidate)) {
-      return candidate;
-    }
-    const parent = path.dirname(current);
-    if (parent === current) {
-      return null;
-    }
-    current = parent;
-  }
-}
+const DEFAULT_WORKBOOK_PATH = path.resolve(
+  /* turbopackIgnore: true */ process.cwd(),
+  "data",
+  "all-data.xlsx",
+);
 
 function resolveWorkbookPath() {
   const envPath = process.env.WORKBOOK_PATH?.trim();
   if (envPath) {
-    const resolved = path.resolve(envPath);
-    if (fs.existsSync(resolved)) {
-      return resolved;
-    }
+    return path.resolve(envPath);
   }
 
-  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
-  const roots = [process.cwd(), moduleDir];
-  for (const root of roots) {
-    const found = findWorkbookPathFrom(root);
-    if (found) {
-      return found;
-    }
-  }
-
-  return path.join(process.cwd(), "..", "database", "all-data.xlsx");
+  return DEFAULT_WORKBOOK_PATH;
 }
 
 export const WORKBOOK_PATH = resolveWorkbookPath();

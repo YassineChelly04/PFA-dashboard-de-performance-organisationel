@@ -35,6 +35,7 @@ interface LigneData {
   actionFSI?: string;
   actionAlreadyFilled?: boolean;
   downtimeStart?: string;
+  isFirstTime?: boolean;
 }
 
 export default function Dashboard() {
@@ -45,6 +46,7 @@ export default function Dashboard() {
   const [isSearching, setIsSearching] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lineFound, setLineFound] = useState(false);
+  const [pendingCreateDl, setPendingCreateDl] = useState<string | null>(null);
   const [lineData, setLineData] = useState<LigneData>({
     dligne: "",
     status: "En attente de recherche",
@@ -76,18 +78,40 @@ export default function Dashboard() {
 
     setIsSearching(true);
     try {
-      const response = await fetch(`/api/ligne?dl=${encodeURIComponent(searchQuery.trim())}`);
+      const normalizedQuery = searchQuery.trim();
+      const response = await fetch(`/api/ligne?dl=${encodeURIComponent(normalizedQuery)}`);
       const result = await response.json();
+
+      if (response.status === 404 && result?.found === false) {
+        toast.error(`DLigne ${normalizedQuery} introuvable. Cliquez sur "Ajouter nouveau".`);
+        setPendingCreateDl(normalizedQuery);
+        setLineFound(false);
+        setLineData({
+          dligne: normalizedQuery,
+          status: "Non trouvé",
+          offre: "-",
+          debit: "-",
+          debitMax: "-",
+          region: "-",
+          zone: "-",
+          isActive: false,
+          actionAlreadyFilled: false,
+          isFirstTime: false,
+        });
+        setMetrics({ latency: 0, snr: 0 });
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(result.error || "Erreur lors de la recherche");
       }
 
       if (!result.found) {
-        toast.error(`Ligne ${searchQuery} non trouvée`);
+        toast.error(`Ligne ${normalizedQuery} non trouvée`);
+        setPendingCreateDl(normalizedQuery);
         setLineFound(false);
         setLineData({
-          dligne: searchQuery,
+          dligne: normalizedQuery,
           status: "Non trouvé",
           offre: "-",
           debit: "-",
@@ -99,6 +123,7 @@ export default function Dashboard() {
         });
         setMetrics({ latency: 0, snr: 0 });
       } else {
+        setPendingCreateDl(null);
         const data = result.data;
         setLineFound(true);
         setLineData({
@@ -114,6 +139,7 @@ export default function Dashboard() {
           actionFSI: data.actionFSI,
           actionAlreadyFilled: result.actionAlreadyFilled,
           downtimeStart: data.downtimeStart,
+          isFirstTime: false,
         });
         setMetrics({
           latency: Math.floor(Math.random() * 20) + 8,
@@ -125,16 +151,42 @@ export default function Dashboard() {
       const message = error instanceof Error ? error.message : "Erreur lors de la recherche";
       console.error("Search error:", error);
       toast.error(message);
+      setPendingCreateDl(null);
       setLineFound(false);
     } finally {
       setIsSearching(false);
     }
   };
 
-  const handleActionSaved = () => {
+  const handleCreateNewLine = () => {
+    if (!pendingCreateDl) {
+      return;
+    }
+    setLineFound(true);
+    setLineData({
+      dligne: pendingCreateDl,
+      status: "Ouvert",
+      offre: "-",
+      debit: "-",
+      debitMax: "Up to 100",
+      region: "-",
+      zone: "-",
+      isActive: true,
+      actionAlreadyFilled: false,
+      isFirstTime: true,
+    });
+    setMetrics({ latency: 0, snr: 0 });
+    setPendingCreateDl(null);
+    toast.success(`Création du premier ticket pour ${pendingCreateDl}.`);
+  };
+
+  const handleActionSaved = (payload: { status: "Ouvert" | "Traitement" | "Clôturé" }) => {
     setLineData((prev) => ({
       ...prev,
       actionAlreadyFilled: true,
+      status: payload.status,
+      isActive: payload.status !== "Clôturé",
+      isFirstTime: false,
     }));
   };
 
@@ -280,8 +332,16 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
         <header className="bg-white border-b border-[#e5e7eb] flex flex-wrap items-center gap-3 px-4 py-3 pl-16 sm:px-6 sm:pl-20 lg:flex-nowrap lg:gap-4 lg:px-8 lg:pl-8 shrink-0">
+          <div className="order-1 flex items-center gap-3">
+            <Image src="/logo-tt.png" alt="Tunisie Telecom" width={96} height={48} className="h-10 w-auto" />
+            <div className="hidden sm:block leading-tight">
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9ca3af]">Tunisie Telecom</div>
+              <div className="text-sm font-extrabold text-[#0a277a]">Espace Fournisseur</div>
+            </div>
+          </div>
+
           {/* Search Bar */}
-          <div className="relative order-2 w-full lg:order-1 lg:flex-1">
+          <div className="relative order-2 w-full lg:order-2 lg:flex-1">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9ca3af]" size={16} />
               <input
@@ -293,7 +353,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right Icons */}
-          <div className="order-3 hidden items-center gap-2 md:flex lg:order-2">
+          <div className="order-3 hidden items-center gap-2 md:flex lg:order-3">
             <button className="grid h-11 w-11 place-items-center rounded-2xl border border-[#e5e7eb] bg-white text-[#4b5563] hover:bg-[#f9fafb] transition-colors">
               <Bell size={20} />
             </button>
@@ -305,7 +365,7 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="order-1 ml-auto flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2 lg:order-3 lg:ml-0">
+          <div className="order-4 ml-auto flex items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2 lg:ml-0">
             {/* User Info */}
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[#e5e7eb] to-[#f3f4f6] ring-1 ring-black/5 flex items-center justify-center">
@@ -482,13 +542,31 @@ export default function Dashboard() {
                   Répondez aux questions de diagnostic pour enregistrer l&apos;intervention.
                 </p>
 
+                {pendingCreateDl ? (
+                  <div className="mb-5 rounded-xl border border-[#fde68a] bg-[#fffbeb] p-4">
+                    <p className="text-[13px] font-semibold text-[#92400e]">
+                      DLigne {pendingCreateDl} n&apos;a aucun historique.
+                    </p>
+                    <p className="mt-1 text-[12px] text-[#b45309]">
+                      Cliquez sur le bouton pour créer un nouveau ticket fournisseur.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleCreateNewLine}
+                      className="mt-3 inline-flex h-[38px] items-center rounded-lg bg-[#1e3a6e] px-4 text-[13px] font-semibold text-white transition hover:bg-[#2a4a8e]"
+                    >
+                      Ajouter nouveau
+                    </button>
+                  </div>
+                ) : null}
+
                 <MultiStepActionForm 
                   dlNumber={lineData.dligne}
                   actionAlreadyFilled={lineData.actionAlreadyFilled || false}
-                  existingAction={lineData.actionFSI}
                   downtimeStart={lineData.downtimeStart}
                   onActionSaved={handleActionSaved}
                   lineFound={lineFound}
+                  isFirstTime={Boolean(lineData.isFirstTime)}
                 />
               </div>
             </div>

@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Calendar, CheckSquare, CheckCircle, TrendingUp, SlidersHorizontal, Search, Ban, User } from 'lucide-react'
 
@@ -10,12 +9,24 @@ interface Intervention {
   productType: string | null
   resolutionCode: string | null
   resolutionObservation: string | null
+  resolutionDuration: string | null
   status: string
-  createdAt: Date
+  createdAt: Date | string
+  closeTime: Date | string | null
   client: {
     nom: string
     dLigne: string
     offre: string
+    referenceExtranet: string | null
+    refHPSM: string | null
+    openTimeHPSM: Date | string | null
+    downtimeStart: Date | string | null
+    closeTime: Date | string | null
+    resolutionCode: string | null
+    productType: string | null
+    resolutionObservation: string | null
+    resolutionDuration: string | null
+    problemStatus: string
   }
   technicien: {
     nom: string
@@ -47,25 +58,49 @@ export function HistoriquePage({ interventions, client }: Props) {
         return
       }
 
-      const response = await fetch(`/api/clients/${selectedClientId}`)
-      if (response.ok) {
-        const data = await response.json()
-        setSelectedClient({
-          nom: data.client.nom,
-          dLigne: data.client.dLigne,
-        })
-        setSelectedInterventions(interventions.filter(intervention => intervention.client.dLigne === data.client.dLigne))
-      } else {
+      try {
+        const [clientResponse, interventionsResponse] = await Promise.all([
+          fetch(`/api/clients/${selectedClientId}`),
+          fetch(`/api/interventions?clientId=${selectedClientId}`),
+        ])
+
+        if (clientResponse.ok) {
+          const data = await clientResponse.json()
+          setSelectedClient({
+            nom: data.client.nom,
+            dLigne: data.client.dLigne,
+          })
+        } else {
+          setSelectedClient(null)
+        }
+
+        if (interventionsResponse.ok) {
+          const data = await interventionsResponse.json()
+          setSelectedInterventions(Array.isArray(data.interventions) ? data.interventions : [])
+        } else {
+          setSelectedInterventions([])
+        }
+      } catch (error) {
+        console.error('Error loading selected client history:', error)
         setSelectedClient(null)
-        setSelectedInterventions(interventions)
+        setSelectedInterventions([])
       }
     }
 
     loadSelectedClient()
   }, [selectedClientId, interventions])
   
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('fr-FR', {
+  const formatDate = (date: Date | string | null | undefined) => {
+    if (!date) {
+      return '—'
+    }
+
+    const parsed = new Date(date)
+    if (Number.isNaN(parsed.getTime())) {
+      return '—'
+    }
+
+    return parsed.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -241,10 +276,10 @@ export function HistoriquePage({ interventions, client }: Props) {
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="font-[family-name:var(--font-montserrat)] font-semibold text-slate-900">
-                        {intervention.resolutionCode || 'Non spécifié'}
+                        {intervention.client.dLigne}
                       </h3>
                       <p className="font-[family-name:var(--font-manrope)] text-sm text-slate-500">
-                        {intervention.productType || 'Type non spécifié'}
+                        {intervention.client.nom}
                       </p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -256,11 +291,43 @@ export function HistoriquePage({ interventions, client }: Props) {
                     </span>
                   </div>
 
-                  {intervention.resolutionObservation && (
-                    <p className="font-[family-name:var(--font-manrope)] text-sm text-slate-600 mb-3 bg-slate-50 rounded-lg p-3">
-                      {intervention.resolutionObservation}
+                  <div className="grid grid-cols-1 gap-x-4 gap-y-2 rounded-lg bg-slate-50 p-3 text-sm text-slate-700 md:grid-cols-2">
+                    <p>
+                      <span className="font-semibold">Référence Extranet:</span>{' '}
+                      {intervention.client.referenceExtranet || '—'}
                     </p>
-                  )}
+                    <p>
+                      <span className="font-semibold">Ref HPSM:</span>{' '}
+                      {intervention.client.refHPSM || '—'}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Open time:</span>{' '}
+                      {formatDate(intervention.client.openTimeHPSM || intervention.client.downtimeStart)}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Close time:</span>{' '}
+                      {formatDate(intervention.closeTime || intervention.client.closeTime)}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Resolution code:</span>{' '}
+                      {intervention.resolutionCode || intervention.client.resolutionCode || '—'}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Product type:</span>{' '}
+                      {intervention.productType || intervention.client.productType || '—'}
+                    </p>
+                    <p className="md:col-span-2">
+                      <span className="font-semibold">Resolution observation TT:</span>{' '}
+                      {intervention.resolutionObservation || intervention.client.resolutionObservation || '—'}
+                    </p>
+                    <p>
+                      <span className="font-semibold">TT_resolution_duration:</span>{' '}
+                      {intervention.resolutionDuration || intervention.client.resolutionDuration || '—'}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Offre:</span> {intervention.client.offre}
+                    </p>
+                  </div>
 
                   <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
                     <div className="flex items-center gap-1">

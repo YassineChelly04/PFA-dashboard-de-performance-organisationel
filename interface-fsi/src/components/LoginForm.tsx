@@ -46,15 +46,13 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fafbfc] relative overflow-hidden">
-      {/* Background decorative gradient - top right */}
-      <div className="absolute top-0 right-0 w-[800px] h-[400px] bg-gradient-to-bl from-[#e8e4f0]/50 via-[#f0f4ff]/30 to-transparent"></div>
-      
-      {/* Background decorative gradient - bottom left */}
-      <div className="absolute bottom-20 left-0 w-[600px] h-[300px] bg-gradient-to-tr from-[#e8f4f8]/40 to-transparent"></div>
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-indigo-50 via-white to-white relative overflow-hidden">
+      {/* Decorative gradient orbs */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-4 relative z-10">
         <div className="w-full max-w-[400px]">
           {/* Login Card */}
           <div className="bg-white rounded-3xl shadow-[0_4px_40px_rgba(0,0,0,0.06)] p-10 space-y-6">
@@ -194,7 +192,7 @@ export default function LoginForm() {
       </div>
 
       {/* Footer */}
-      <footer className="py-6 px-6">
+      <footer className="py-6 px-6 relative z-10">
         <div className="flex items-center justify-center gap-16 text-[11px] text-[#9ca3af] uppercase tracking-widest font-[var(--font-plus-jakarta-sans)]">
           <span>© 2025 TUNISIE TELECOM</span>
           <span>CONFIDENTIALITÉ</span>
@@ -202,7 +200,7 @@ export default function LoginForm() {
       </footer>
 
       {/* Bottom Gradient Bar */}
-      <div className="h-1 bg-gradient-to-r from-[#1e3a6e] via-[#0891b2] to-[#06b6d4]"></div>
+      <div className="h-1 bg-gradient-to-r from-[#1e3a6e] via-[#0891b2] to-[#06b6d4] relative z-10"></div>
     </div>
   );
 }

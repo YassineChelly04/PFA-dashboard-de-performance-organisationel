@@ -89,6 +89,7 @@ export function normalizeIncidentRow(raw: RawRow): IncidentRow | null {
   const status = normalizeText(raw["problem_status"]) ?? "Inconnu";
 
   return {
+    dLigne: readString(raw, ["dLigne", "d_ligne", "DL", "dl"]),
     openAt,
     closeAt: toDate(raw["close_time"]),
     status,

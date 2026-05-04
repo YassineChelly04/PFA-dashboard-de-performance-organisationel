@@ -1,16 +1,59 @@
-import { Bell, HelpCircle, Moon, Search } from "lucide-react";
+import { signOut } from "next-auth/react";
+import Image from "next/image";
+import { Bell, HelpCircle, LogOut, Moon, Search } from "lucide-react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export function Topbar({ searchPlaceholder }: { searchPlaceholder: string }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentQuery = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
+  const [query, setQuery] = useState(currentQuery);
+
+  useEffect(() => {
+    setQuery(currentQuery);
+  }, [currentQuery]);
+
+  const applyQuery = (value: string) => {
+    const next = new URLSearchParams(searchParams.toString());
+    const trimmed = value.trim();
+
+    if (trimmed) {
+      next.set("q", trimmed);
+    } else {
+      next.delete("q");
+    }
+
+    router.push(`${pathname}?${next.toString()}`);
+  };
+
+  const onSearchSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    applyQuery(query);
+  };
+
   return (
     <header className="flex flex-wrap items-center gap-3 border-b border-tt-border bg-white px-4 py-3 pl-16 sm:px-6 sm:pl-20 lg:flex-nowrap lg:gap-4 lg:px-8 lg:pl-8">
-      <div className="relative order-2 w-full lg:order-1 lg:flex-1">
+      <div className="order-1 flex items-center gap-3">
+        <Image src="/logo-tt.png" alt="Tunisie Telecom" width={96} height={48} className="h-10 w-auto" />
+        <div className="hidden sm:block leading-tight">
+          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Tunisie Telecom</div>
+          <div className="text-sm font-extrabold text-tt-navy">Dashboard Principale</div>
+        </div>
+      </div>
+
+      <form className="relative order-2 w-full lg:order-1 lg:flex-1" onSubmit={onSearchSubmit}>
         <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <input
           className="w-full rounded-2xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-800 outline-none ring-tt-blue/30 placeholder:text-gray-400 focus:ring-4"
           placeholder={searchPlaceholder}
           type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          onBlur={() => applyQuery(query)}
         />
-      </div>
+      </form>
 
       <div className="order-3 hidden items-center gap-2 md:flex lg:order-2">
         <button
@@ -33,12 +76,20 @@ export function Topbar({ searchPlaceholder }: { searchPlaceholder: string }) {
         </button>
       </div>
 
-      <div className="order-1 ml-auto flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-3 py-2 lg:order-3 lg:ml-0">
+      <div className="order-3 ml-auto flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-3 py-2 lg:order-3 lg:ml-0">
         <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-gray-200 to-gray-100 ring-1 ring-black/5" />
         <div className="hidden leading-tight sm:block">
           <div className="text-sm font-extrabold text-tt-navy">M. Ben Slama</div>
           <div className="text-xs text-gray-500">Directeur Opérations</div>
         </div>
+        <button
+          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-xs font-bold uppercase tracking-wide text-gray-700 transition hover:bg-gray-50"
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          type="button"
+        >
+          <LogOut className="h-4 w-4" />
+          Déconnexion
+        </button>
       </div>
     </header>
   );

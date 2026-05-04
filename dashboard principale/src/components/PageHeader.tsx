@@ -1,16 +1,15 @@
-import { CalendarDays, Download } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 
 import { Button } from "./ui/Button";
 
 export function PageHeader({
   kicker,
   title,
-  primaryActionLabel,
   secondaryActionLabel,
 }: {
   kicker: string;
   title: string;
-  primaryActionLabel: string;
+  primaryActionLabel?: string;
   secondaryActionLabel: string;
 }) {
   return (
@@ -26,10 +25,6 @@ export function PageHeader({
         <Button className="rounded-2xl" type="button" variant="secondary">
           <CalendarDays className="h-4 w-4" />
           {secondaryActionLabel}
-        </Button>
-        <Button className="rounded-2xl" type="button" variant="primary">
-          <Download className="h-4 w-4" />
-          {primaryActionLabel}
         </Button>
       </div>
     </div>

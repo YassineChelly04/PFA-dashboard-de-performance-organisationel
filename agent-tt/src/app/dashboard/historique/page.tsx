@@ -9,6 +9,16 @@ type HistoriqueIntervention = Prisma.InterventionGetPayload<{
         nom: true
         dLigne: true
         offre: true
+        referenceExtranet: true
+        refHPSM: true
+        openTimeHPSM: true
+        downtimeStart: true
+        closeTime: true
+        resolutionCode: true
+        productType: true
+        resolutionObservation: true
+        resolutionDuration: true
+        problemStatus: true
       }
     }
     technicien: {
@@ -32,6 +42,16 @@ export default async function Page() {
             nom: true,
             dLigne: true,
             offre: true,
+            referenceExtranet: true,
+            refHPSM: true,
+            openTimeHPSM: true,
+            downtimeStart: true,
+            closeTime: true,
+            resolutionCode: true,
+            productType: true,
+            resolutionObservation: true,
+            resolutionDuration: true,
+            problemStatus: true,
           },
         },
         technicien: {
