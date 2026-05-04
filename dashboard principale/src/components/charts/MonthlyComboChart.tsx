@@ -14,7 +14,7 @@ import {
 export function MonthlyComboChart({
   data,
 }: {
-  data: { label: string; technique: number; commercial: number }[];
+  data: { label: string; reseau: number; locale: number; logiqueClient: number }[];
 }) {
   return (
     <div className="h-[320px] w-full">
@@ -39,8 +39,24 @@ export function MonthlyComboChart({
             }}
           />
           <Legend />
-          <Bar dataKey="technique" name="Technique" fill="#1E2F97" radius={[10, 10, 0, 0]} />
-          <Bar dataKey="commercial" name="Commercial" fill="#5F2EE5" radius={[10, 10, 0, 0]} />
+          <Bar
+            dataKey="reseau"
+            name="Intervention Technique Réseau"
+            fill="#1E2F97"
+            radius={[10, 10, 0, 0]}
+          />
+          <Bar
+            dataKey="locale"
+            name="Intervention Technique Locale"
+            fill="#5F2EE5"
+            radius={[10, 10, 0, 0]}
+          />
+          <Bar
+            dataKey="logiqueClient"
+            name="Intervention Logique / Client"
+            fill="#0EA5A4"
+            radius={[10, 10, 0, 0]}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

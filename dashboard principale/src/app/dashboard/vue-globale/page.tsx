@@ -10,10 +10,12 @@ import { loadDashboardIncidentsSafely } from "@/lib/dashboardData";
 import { applyFilters, parseDashboardFilters } from "@/lib/filters";
 import { formatHours1, formatIntFr, formatPct1 } from "@/lib/format";
 import {
+  SLA_TARGET_HOURS,
   URGENT_TICKET_THRESHOLD_HOURS,
   mean,
   monthlyInterventionTrend,
   resolutionRate,
+  slaComplianceRate,
   statusSplit,
   topNCounts,
 } from "@/lib/metrics";
@@ -41,11 +43,22 @@ export default async function VueGlobalePage({
   const avgHours =
     mean(filtered.map((r) => r.durationHours).filter((v): v is number => v !== null)) ?? 0;
   const rate = resolutionRate(filtered) ?? 0;
+  const slaRate = slaComplianceRate(filtered);
+  const slaMeasured = filtered.filter(
+    (r): r is (typeof filtered)[number] & { durationHours: number } =>
+      r.durationHours !== null && Number.isFinite(r.durationHours),
+  );
+  const slaCompliantCount = slaMeasured.filter((r) => r.durationHours <= SLA_TARGET_HOURS).length;
   const split = statusSplit(filtered);
 
   const trends = monthlyInterventionTrend(filtered)
     .slice(-6)
-    .map((x) => ({ label: x.label, technique: x.technique, commercial: x.commercial }));
+    .map((x) => ({
+      label: x.label,
+      reseau: x.reseau,
+      locale: x.locale,
+      logiqueClient: x.logiqueClient,
+    }));
 
   const regionsTop = topNCounts(filtered, (r) => r.region, 6).map((x) => ({
     label: x.key,
@@ -79,7 +92,7 @@ export default async function VueGlobalePage({
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-4">
         <Card className="p-6">
           <div className="text-[11px] font-extrabold tracking-wider text-gray-500">TOTAL INCIDENTS</div>
           <div className="mt-2 text-4xl font-black text-tt-blue">{formatIntFr(filtered.length)}</div>
@@ -94,6 +107,16 @@ export default async function VueGlobalePage({
           <div className="text-[11px] font-extrabold tracking-wider text-gray-500">DÉLAI MOYEN</div>
           <div className="mt-2 text-4xl font-black text-tt-navy">{formatHours1(avgHours)}h</div>
           <div className="mt-3 text-sm text-gray-500">Temps moyen de traitement</div>
+        </Card>
+        <Card className="p-6">
+          <div className="text-[11px] font-extrabold tracking-wider text-gray-500">CONFORMITÉ SLA</div>
+          <div className="mt-2 text-4xl font-black text-violet-700">
+            {slaRate === null ? "n/a" : formatPct1(slaRate)}
+          </div>
+          <div className="mt-3 text-sm text-gray-500">
+            Cible ≤ {formatHours1(SLA_TARGET_HOURS)}h ({formatIntFr(slaCompliantCount)}/
+            {formatIntFr(slaMeasured.length)} tickets)
+          </div>
         </Card>
       </div>
 

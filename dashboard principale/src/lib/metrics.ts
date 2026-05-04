@@ -1,9 +1,11 @@
 import type { IncidentRow } from "./model";
+import { serviceBucket } from "./buckets";
 import { isClosed } from "./normalize";
 
 export type CountRow = { key: string; count: number };
 export type ParetoRow = CountRow & { cumPct: number };
 export const URGENT_TICKET_THRESHOLD_HOURS = 72;
+export const SLA_TARGET_HOURS = 4;
 
 export function mean(values: number[]): number | null {
   if (!values.length) return null;
@@ -81,31 +83,26 @@ export function groupMeanHours(
 export function monthlyInterventionTrend(rows: IncidentRow[]): {
   monthKey: string;
   label: string;
-  technique: number;
-  commercial: number;
+  reseau: number;
+  locale: number;
+  logiqueClient: number;
 }[] {
-  // Heuristic mapping based on product_type language in the dataset
   const buckets = new Map<
     string,
-    { label: string; technique: number; commercial: number }
+    { label: string; reseau: number; locale: number; logiqueClient: number }
   >();
 
   for (const row of rows) {
     const d = row.openAt;
     const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const label = formatMonthLabel(d);
+    const entry = buckets.get(monthKey) ?? { label, reseau: 0, locale: 0, logiqueClient: 0 };
 
-    const pt = (row.productType ?? "").toLowerCase();
-    const isCommercial =
-      pt.includes("client") ||
-      pt.includes("absent") ||
-      pt.includes("configuration modem") ||
-      pt.includes("education") ||
-      pt.includes("compte");
+    const family = serviceBucket(row.productType);
+    if (family === "Technique Réseau") entry.reseau += 1;
+    else if (family === "Technique Local") entry.locale += 1;
+    else entry.logiqueClient += 1;
 
-    const entry = buckets.get(monthKey) ?? { label, technique: 0, commercial: 0 };
-    if (isCommercial) entry.commercial += 1;
-    else entry.technique += 1;
     buckets.set(monthKey, entry);
   }
 
@@ -114,8 +111,9 @@ export function monthlyInterventionTrend(rows: IncidentRow[]): {
     .map(([monthKey, v]) => ({
       monthKey,
       label: v.label,
-      technique: v.technique,
-      commercial: v.commercial,
+      reseau: v.reseau,
+      locale: v.locale,
+      logiqueClient: v.logiqueClient,
     }));
 }
 
@@ -158,4 +156,18 @@ export function statusSplit(rows: IncidentRow[]): {
 export function resolutionRate(rows: IncidentRow[]): number | null {
   if (!rows.length) return null;
   return (rows.filter((r) => isClosed(r.status)).length / rows.length) * 100;
+}
+
+export function slaComplianceRate(
+  rows: IncidentRow[],
+  targetHours: number = SLA_TARGET_HOURS,
+): number | null {
+  const measured = rows.filter(
+    (r): r is IncidentRow & { durationHours: number } =>
+      r.durationHours !== null && Number.isFinite(r.durationHours),
+  );
+  if (!measured.length) return null;
+
+  const compliant = measured.filter((r) => r.durationHours <= targetHours).length;
+  return (compliant / measured.length) * 100;
 }
