@@ -88,8 +88,9 @@ def generate(rows: int, seed: int) -> pd.DataFrame:
 
     n_lines = int(rows * 0.5)
     line_ids = [f"DL-{i:06d}" for i in rng.permutation(np.arange(1, n_lines + 1))]
-    # Some lines fail repeatedly: a long-tail draw over line ids.
-    line_choice = rng.zipf(1.6, rows) % n_lines
+    # Most lines fail once or twice; a small set of fragile lines fails repeatedly.
+    fragile = rng.choice(n_lines, size=max(1, n_lines // 50), replace=False)
+    line_choice = np.where(rng.random(rows) < 0.85, rng.integers(0, n_lines, rows), rng.choice(fragile, rows))
     dlignes = [line_ids[i] for i in line_choice]
 
     start = datetime(2025, 1, 1)
