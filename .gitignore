@@ -3,3 +3,6 @@
 ~$*.xls
 ~$*.docx
 ~$*.pptx
+
+# local SQLite snapshots
+*.db
